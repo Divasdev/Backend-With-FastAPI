@@ -108,28 +108,46 @@ posts = [
 ]
 
 
-@app.get("/posts/{id}/{description}")
-def get_posts(id:int,description:str):
-   return [
-        {'id':id},
-        {"desc":description}
-    ]
+@app.get("/posts/{id}")
+def get_post(id: int):
+    for post in posts:
+        if post["id"] == id:
+            return post
    
-   
-   
-@app.get("/posts/{title}/{likes}")
-def get_title_author(title,likes):
-    return [{"Title":title},
-            {"Likes":likes}]
-    
-@app.get("/files/{file_path:path}")
-def get_photo(file_path):
-    return FileResponse(file_path)
-
-
 @app.get("/posts/")
 def get_post_date(skip: int = 0, limit: int = 10):
     return posts[skip : skip + limit]
+
+
+@app.get("/posts")
+def get_posts(
+    language: str | None = None,
+    author: str | None = None,
+    difficulty: str | None = None
+):
+    result = posts
+
+    if language:
+        result = [
+            post for post in result
+            if post["language"] == language
+        ]
+
+    if author:
+        result = [
+            post for post in result
+            if post["author"] == author
+        ]
+
+    if difficulty:
+        result = [
+            post for post in result
+            if post["difficulty"] == difficulty
+        ]
+
+    return result
+    
+
 
 
 

@@ -124,9 +124,15 @@ posts = [
 
 
 @app.post("/post/")
-def create_post(post:Post):
-    return Post 
-    
+def create_post(post: Post):
+    post_dict = post.model_dump()
+
+    default_title = "This is Snippets sharing app"
+    post_dict.update({"default_title": default_title})
+
+    posts.append(post_dict)
+
+    return post_dict
 
 @app.get("/posts/{id}")
 def get_post(id: int):

@@ -127,6 +127,11 @@ def get_photo(file_path):
     return FileResponse(file_path)
 
 
+@app.get("/posts/")
+def get_post_date(skip: int = 0, limit: int = 10):
+    return posts[skip : skip + limit]
+
+
 
 
 

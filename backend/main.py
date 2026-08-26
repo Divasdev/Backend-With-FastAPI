@@ -1,6 +1,21 @@
 from fastapi import FastAPI,Request
 from fastapi.responses import FileResponse
+from  pydantic import  BaseModel 
  
+ 
+ 
+ 
+ 
+ 
+class Post(BaseModel):
+      title: str 
+      language:str 
+      description: str |None=None
+      likes:int 
+      
+      
+      
+        
 app=FastAPI()
 
 
@@ -107,6 +122,11 @@ posts = [
     }
 ]
 
+
+@app.post("/post/")
+def create_post(post:Post):
+    return Post 
+    
 
 @app.get("/posts/{id}")
 def get_post(id: int):

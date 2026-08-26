@@ -1,4 +1,5 @@
 from fastapi import FastAPI,Request
+from fastapi.responses import FileResponse
  
 app=FastAPI()
 
@@ -112,7 +113,21 @@ def get_posts(id:int,description:str):
    return [
         {'id':id},
         {"desc":description}
-        ]
+    ]
+   
+   
+   
+@app.get("/posts/{title}/{likes}")
+def get_title_author(title,likes):
+    return [{"Title":title},
+            {"Likes":likes}]
+    
+@app.get("/files/{file_path:path}")
+def get_photo(file_path):
+    return FileResponse(file_path)
+
+
+
 
 
 

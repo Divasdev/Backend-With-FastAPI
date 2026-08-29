@@ -1,7 +1,11 @@
 from fastapi import FastAPI,Request
-from fastapi.responses import FileResponse
+from fastapi.responses import PlainTextResponse,JSONResponse
 from  pydantic import  BaseModel 
 from fastapi import HTTPException
+from starlette.exceptions import HTTPException as starletteHTTPException 
+from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
+
  
  
  
@@ -14,10 +18,25 @@ class Post(BaseModel):
       likes:int 
       
       
-      
+class UnicornException(Exception):
+    def __init__(self, name:str):
+        self.name=name
+        
         
 app=FastAPI()
 
+@app.exception_handler(UnicornException)
+def unicorn_exception_handler(
+    request: Request,
+    exc: UnicornException
+):
+    return JSONResponse(
+        status_code=418,
+        content={"message":f"Oops!{exc.name} did something.There goes a rainbow... "},
+    )
+    
+    
+    
 
 posts = [
     {
@@ -122,6 +141,14 @@ posts = [
     }
 ]
 
+@app.get("/unicorns/{name}")
+def read_unicorn(name:str):
+    if name=="Yolo":
+        raise UnicornException(name=name)
+    return {"Unicorn name":name}
+
+
+
 
 @app.post("/post/")
 def create_post(post: Post):
@@ -135,13 +162,50 @@ def create_post(post: Post):
     return post_dict
 
 
+
 @app.get("/posts/{id}")
 def get_post(id: int):
     for post in posts:
         if post["id"] == id:
             return post
-        else:
-            raise HTTPException(status_code=404,detail="Item not found")
+
+    raise HTTPException(
+        status_code=404,
+        detail="Item not found"
+    )
+        
+        
+        
+        
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request,exc:RequestValidationError):
+    message="Validation Errors"
+    
+    for error in exc.errors():
+         message += f"\nField: {error['loc']}, Error: {error['msg']}"
+    return PlainTextResponse(message, status_code=400)
+    
+
+
+    
+class Snippets(BaseModel):
+        code:str
+        lang:str 
+        lines:int 
+        
+        
+@app.post("/snippets")
+def create_snippets(snippets:Snippets):
+        return snippets
+        
+    
+@app.get("/snippets")
+def get_snippets():
+    return {"message": "the snippets"}
+    
+    
+            
+
         
    
 

@@ -1,29 +1,21 @@
-from fastapi import FastAPI,Request
+from fastapi import FastAPI,Request,Body
 from fastapi.responses import PlainTextResponse,JSONResponse
-from  pydantic import  BaseModel 
+from  pydantic import  BaseModel,Field
 from fastapi import HTTPException
 from starlette.exceptions import HTTPException as starletteHTTPException 
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
-
+from typing import Annotated
  
  
- 
- 
- 
-class Post(BaseModel):
-      title: str 
-      language:str 
-      description: str |None=None
-      likes:int 
-      
-      
+app=FastAPI()
+    
 class UnicornException(Exception):
     def __init__(self, name:str):
         self.name=name
         
         
-app=FastAPI()
+
 
 @app.exception_handler(UnicornException)
 def unicorn_exception_handler(
@@ -148,6 +140,19 @@ def read_unicorn(name:str):
     return {"Unicorn name":name}
 
 
+
+
+class Post(BaseModel):
+      title: str=Field(min_length=10)
+      language:str 
+      description: str |None=Field(
+          default=None,
+          title="The description of the item",max_length=300
+      )
+      likes:int = Field(gt=0,
+        description="The price must be greater than zero")
+      
+   
 
 
 @app.post("/post/")

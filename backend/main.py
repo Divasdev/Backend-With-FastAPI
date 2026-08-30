@@ -10,22 +10,11 @@ from typing import Annotated
  
 app=FastAPI()
     
-class UnicornException(Exception):
-    def __init__(self, name:str):
-        self.name=name
+
         
         
 
 
-@app.exception_handler(UnicornException)
-def unicorn_exception_handler(
-    request: Request,
-    exc: UnicornException
-):
-    return JSONResponse(
-        status_code=418,
-        content={"message":f"Oops!{exc.name} did something.There goes a rainbow... "},
-    )
     
     
     
@@ -133,23 +122,22 @@ posts = [
     }
 ]
 
-@app.get("/unicorns/{name}")
-def read_unicorn(name:str):
-    if name=="Yolo":
-        raise UnicornException(name=name)
-    return {"Unicorn name":name}
 
 
 
 
 class Post(BaseModel):
+      id:int=11
       title: str=Field(min_length=10)
       language:str 
-      description: str |None=Field(
-          default=None,
-          title="The description of the item",max_length=300
-      )
-      likes:int = Field(gt=0,
+      description: str | None = Field(
+        default=None,          # what happens if omitted
+        title="This is description metadata",           
+        # documentation metadata
+        max_length=300         # validation
+)
+      likes:int = Field(
+        gt=0,
         description="The price must be greater than zero")
       
    
@@ -168,6 +156,11 @@ def create_post(post: Post):
 
 
 
+
+
+
+
+
 @app.get("/posts/{id}")
 def get_post(id: int):
     for post in posts:
@@ -179,46 +172,6 @@ def get_post(id: int):
         detail="Item not found"
     )
         
-        
-        
-        
-@app.exception_handler(RequestValidationError)
-def validation_exception_handler(request,exc:RequestValidationError):
-    message="Validation Errors"
-    
-    for error in exc.errors():
-         message += f"\nField: {error['loc']}, Error: {error['msg']}"
-    return PlainTextResponse(message, status_code=400)
-    
-
-
-    
-class Snippets(BaseModel):
-        code:str
-        lang:str 
-        lines:int 
-        
-        
-@app.post("/snippets")
-def create_snippets(snippets:Snippets):
-        return snippets
-        
-    
-@app.get("/snippets")
-def get_snippets():
-    return {"message": "the snippets"}
-    
-    
-            
-
-        
    
-
-
-
-
-
-
-
-
+        
 

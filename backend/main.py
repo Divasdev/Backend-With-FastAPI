@@ -140,7 +140,6 @@ class Post(BaseModel):
         gt=0,
         description="The price must be greater than zero")
       
-   
 
 
 @app.post("/post/")
@@ -155,13 +154,7 @@ def create_post(post: Post):
     return post_dict
 
 
-
-
-
-
-
-
-@app.get("/posts/{id}")
+@app.get("/posts/{id}",response_model=Post)
 def get_post(id: int):
     for post in posts:
         if post["id"] == id:
@@ -173,5 +166,4 @@ def get_post(id: int):
     )
         
    
-        
 

@@ -166,6 +166,6 @@ def get_post(id: int):
     )
         
         
-print("hello world")
+
    
 

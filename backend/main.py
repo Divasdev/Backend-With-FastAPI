@@ -152,7 +152,7 @@ def create_post(post: Post):
     posts.append(post_dict)
 
     return post_dict
-
+print("hello world")
 
 @app.get("/posts/{id}",response_model=Post)
 def get_post(id: int):

@@ -165,7 +165,7 @@ def get_post(id: int):
         detail="Item not found"
     )
         
-        
+print("hello")
 
    
 

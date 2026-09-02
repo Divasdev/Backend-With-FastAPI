@@ -6,7 +6,7 @@ from starlette.exceptions import HTTPException as starletteHTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from typing import Annotated
- 
+
  
 app=FastAPI()
     
@@ -126,35 +126,32 @@ posts = [
 
 
 
-class Post(BaseModel):
-      id:int=11
-      title: str=Field(min_length=10)
+class PostIn(BaseModel):# what data client sends 
+      id:int 
+      title: str
       language:str 
-      description: str | None = Field(
-        default=None,          # what happens if omitted
-        title="This is description metadata",           
-        # documentation metadata
-        max_length=300         # validation
-)
-      likes:int = Field(
-        gt=0,
-        description="The price must be greater than zero")
+      likes:int
       
+      
+class PostOut(BaseModel):# decides what the client sees
+    id:int 
+    title:str
+    language:str
+    
+    
+    
 
-
-@app.post("/post/")
-def create_post(post: Post):
+@app.post("/post/",response_model=PostOut)
+def create_post(post: PostIn):
     post_dict = post.model_dump()
-
-    default_title = "This is Snippets sharing app"
-    post_dict.update({"default_title": default_title})
-
     posts.append(post_dict)
 
     return post_dict
-print("hello world")
 
-@app.get("/posts/{id}",response_model=Post)
+
+
+
+@app.get("/posts/{id}",response_model=PostIn)
 def get_post(id: int):
     for post in posts:
         if post["id"] == id:
@@ -165,7 +162,7 @@ def get_post(id: int):
         detail="Item not found"
     )
         
-print("hello")
+
 
    
 

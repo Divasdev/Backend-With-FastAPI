@@ -138,7 +138,7 @@ class PostOut(BaseModel):# decides what the client sees
     title:str
     language:str
     
-    print("hellowordl")
+
     
 
 @app.post("/post/",response_model=PostOut)

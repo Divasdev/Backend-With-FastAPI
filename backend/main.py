@@ -146,7 +146,7 @@ def create_post(post: PostIn):
     post_dict = post.model_dump()
     posts.append(post_dict)
 
-    
+    return post_dict
 
 
 

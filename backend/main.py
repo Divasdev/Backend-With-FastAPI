@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI,Request,Body
+from fastapi import Depends, FastAPI, Query,Request,Body
 from fastapi.responses import PlainTextResponse,JSONResponse
 from  pydantic import  BaseModel,Field
 from fastapi import HTTPException
@@ -34,7 +34,31 @@ def get_session():
 SessionDep=Annotated[Session,Depends(get_session)]
 
 app=FastAPI()
-        
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    
+    
+@app.post("/heroes/")
+def create_hero(hero:Hero,session:SessionDep):
+    session.add(hero)
+    session.commit()
+    session.refresh(hero)
+    return hero 
+
+    
+@app.post("/heroes/")
+def read_heroes(
+    session:SessionDep,
+    offset:int=0,
+    limit:Annotated[int,Query(le=100)]=100,
+):
+    heroes=session.exec(select(Hero).offset(offset).limit(limit)).all()
+    return heroes
+
+
+         
         
   
 

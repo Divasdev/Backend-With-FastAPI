@@ -1,16 +1,11 @@
 from fastapi import FastAPI,Depends,Query,Request,Body
 from fastapi import Depends, FastAPI, Query,Request,Body
-from fastapi.responses import PlainTextResponse,JSONResponse
 from  pydantic import  BaseModel,Field
 from fastapi import HTTPException
-from starlette.exceptions import HTTPException as starletteHTTPException 
-from fastapi.exceptions import RequestValidationError
-from fastapi.encoders import jsonable_encoder
 from typing import Annotated
 from sqlmodel import Field,Session,SQLModel,create_engine,select 
-
 from datetime import date
-
+from starlette.middleware.cors import CORSMiddleware
 sqlite_file_name="database.db"
 sqlite_url=f"sqlite:///{sqlite_file_name}"
 
@@ -26,18 +21,19 @@ class SnipBase(SQLModel):
 class Snip(SnipBase,table=True):
    id:int|None=Field(default=None,primary_key=True)
    created_at:date=Field(default_factory=date.today)
-   
+   vote_count: int = Field(default=0) 
 class SnipCreate(SnipBase):
    pass 
 class SnipPublic(SnipBase):
     id: int
     created_at: date
-   
-class SnipUpdate(SnipBase):
-   title:str
-   language:str 
-   code:str 
-   description:str 
+    vote_count: int = Field(default=0) 
+
+class SnipUpdate(SQLModel):
+    title: str | None = None
+    language: str | None = None
+    code: str | None = None
+    description: str | None = None
    
    
    
@@ -53,11 +49,20 @@ SessionDep=Annotated[Session,Depends(get_session)]
 
 app=FastAPI()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # your React dev server
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.on_event("startup")
 def on_startup():
    create_db_and_tables()
 
-@app.post("/snippets/",response_model=SnipPublic)
+@app.post("/api/snippets/",response_model=SnipPublic)
 
 def create_snip(snip:SnipCreate,session:SessionDep):
    db_snip=Snip.model_validate(snip)
@@ -67,7 +72,7 @@ def create_snip(snip:SnipCreate,session:SessionDep):
    return db_snip
 
 
-@app.get("/snippets/",response_model=list[SnipPublic])
+@app.get("/api/snippets/",response_model=list[SnipPublic])
 def read_heroes(
    session:SessionDep,
    offset:int=0,
@@ -82,7 +87,7 @@ def read_heroes(
    
    return snipps 
 
-@app.get("/snippets/{id}",response_model=SnipPublic)
+@app.get("/api/snippets/{id}",response_model=SnipPublic)
 def  read_hero(
    id:int,
    session:SessionDep
@@ -94,7 +99,7 @@ def  read_hero(
    return snip
 
 
-@app.patch("/snippets/{id}",response_model=SnipPublic)
+@app.patch("/api/snippets/{id}",response_model=SnipPublic)
 def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
    snip_db=session.get(Snip,id)
    if not snip_db:
@@ -107,7 +112,7 @@ def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
    return snip_db
    
    
-@app.delete("/snippets/{id}")
+@app.delete("/api/snippets/{id}")
 def delete_hero(id:int,session:SessionDep):
    snip=session.get(Snip,id)
    if not snip:

@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString();
+}
+
 export default function PostPage() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -24,21 +28,52 @@ export default function PostPage() {
   }, [id]);
 
   if (loading) return <p>Loading...</p>;
-  if (error || !post) return (
-    <div className="empty-state">
-      <h2>Snippet not found.</h2>
-      <Link className="button" to="/">Back to feed</Link>
-    </div>
-  );
+
+  if (error || !post) {
+    return (
+      <div className="empty-state">
+        <h2>Snippet not found.</h2>
+        <Link className="button" to="/">
+          Back to feed
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <article className="detail-page">
-      <Link className="back-link" to="/">← All snippets</Link>
+      <Link className="back-link" to="/">
+        ← All snippets
+      </Link>
+
       <div className="detail-header">
-        <div><div className="post-card-meta"><span className="language-pill">{post.language}</span><span>Shared {formatDate(post.created_at)}</span></div><h1>{post.title}</h1>{post.description && <p>{post.description}</p>}</div>
+        <div>
+          <div className="post-card-meta">
+            <span className="language-pill">{post.language}</span>
+            <span>Shared {formatDate(post.created_at)}</span>
+          </div>
+
+          <h1>{post.title}</h1>
+
+          {post.description && <p>{post.description}</p>}
+        </div>
       </div>
-      <div className="code-panel"><div className="code-panel-bar"><span>{post.language}</span><span>snippet</span></div><pre><code>{post.code}</code></pre></div>
-      <p className="placeholder-note detail-placeholder">Voting, editing, and deletion are intentionally unavailable until your FastAPI backend provides those endpoints.</p>
+
+      <div className="code-panel">
+        <div className="code-panel-bar">
+          <span>{post.language}</span>
+          <span>snippet</span>
+        </div>
+
+        <pre>
+          <code>{post.code}</code>
+        </pre>
+      </div>
+
+      <p className="placeholder-note detail-placeholder">
+        Voting, editing, and deletion are intentionally unavailable until
+        your FastAPI backend provides those endpoints.
+      </p>
     </article>
   );
 }

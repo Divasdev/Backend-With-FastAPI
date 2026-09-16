@@ -1,16 +1,40 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
-import { demoPosts } from '../data/demoPosts';
+
 
 export default function FeedPage() {
+  const[snippets,setSnippets]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[error,setError]=useState(null);
   const [language, setLanguage] = useState('All languages');
 
+  useEffect(()=>{
+    fetch('api/snippets/')
+    .then((res)=>{
+      if (!res.ok) throw new Error("Failed to Fetch Snippets");
+        return res.json();
+      
+    })
+    .then((data)=>{
+      setSnippets(data);
+      setLoading(false);
+    })
+    .catch((err)=>{
+      setError(err.message);
+      setLoading(false);
+    });
+  },[]);
+
+
   const languages = useMemo(
-    () => ['All languages', ...new Set(demoPosts.map((post) => post.language).sort())],
-    [],
+    () => ['All languages', ...new Set(snippets.map((post) => post.language).sort())],
+    [snippets],
   );
-  const visiblePosts = language === 'All languages' ? demoPosts : demoPosts.filter((post) => post.language === language);
+  const visiblePosts = language === 'All languages' ? snippets : snippets.filter((post) => post.language === language);
+
+  if (loading) return <p>Loading Snippets....</p>;
+  if (error) return <p>Error:{error}</p>;
 
   return (
     <div className="feed-page">

@@ -1,15 +1,36 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { demoPosts } from '../data/demoPosts';
-
-function formatDate(value) {
-  return new Intl.DateTimeFormat('en', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(value));
-}
 
 export default function PostPage() {
   const { id } = useParams();
-  const post = demoPosts.find((item) => item.id === id);
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!post) return <div className="empty-state"><h2>Snippet not found.</h2><p>This static preview only includes the sample snippets on the home page.</p><Link className="button" to="/">Back to feed</Link></div>;
+  useEffect(() => {
+    fetch(`/api/snippets/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Snippet not found');
+        return res.json();
+      })
+      .then((data) => {
+        setPost(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error || !post) return (
+    <div className="empty-state">
+      <h2>Snippet not found.</h2>
+      <Link className="button" to="/">Back to feed</Link>
+    </div>
+  );
+
   return (
     <article className="detail-page">
       <Link className="back-link" to="/">← All snippets</Link>

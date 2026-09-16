@@ -107,3 +107,12 @@ def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
    return snip_db
    
    
+@app.delete("/snippets/{id}")
+def delete_hero(id:int,session:SessionDep):
+   snip=session.get(Snip,id)
+   if not snip:
+      raise HTTPException(status_code=404,detail="Snippet not found")
+   session.delete(snip)
+   session.commit()
+   
+   return {"ok":True}

@@ -33,6 +33,12 @@ class SnipPublic(SnipBase):
     id: int
     created_at: date
    
+class SnipUpdate(SnipBase):
+   title:str
+   language:str 
+   code:str 
+   description:str 
+   
    
    
 def create_db_and_tables():
@@ -59,3 +65,45 @@ def create_snip(snip:SnipCreate,session:SessionDep):
    session.commit()
    session.refresh(db_snip)
    return db_snip
+
+
+@app.get("/snippets/",response_model=list[SnipPublic])
+def read_heroes(
+   session:SessionDep,
+   offset:int=0,
+   limit:Annotated[int,Query(le=100)]=100,
+   ):
+   
+   snipps=session.exec(
+      select(Snip)
+      .offset(offset)
+      .limit(limit) 
+   ).all()
+   
+   return snipps 
+
+@app.get("/snippets/{id}",response_model=SnipPublic)
+def  read_hero(
+   id:int,
+   session:SessionDep
+):
+   snip=session.get(Snip,id)
+   if not snip:
+      raise HTTPException(status_code=404,detail="Snip not Found")
+   
+   return snip
+
+
+@app.patch("/snippets/{id}",response_model=SnipPublic)
+def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
+   snip_db=session.get(Snip,id)
+   if not snip_db:
+      raise HTTPException(status_code=404,detail="Snippet not found")
+   snip_data=snip.model_dump(exclude_unset=True)
+   snip_db.sqlmodel_update(snip_data)
+   session.add(snip_db)
+   session.commit()
+   session.refresh(snip_db)
+   return snip_db
+   
+   

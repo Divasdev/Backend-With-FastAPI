@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams,Navigate, useNavigate} from 'react-router-dom';
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
 export default function PostPage() {
+  const navigate=useNavigate()
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,10 +71,11 @@ export default function PostPage() {
         </pre>
       </div>
 
-      <p className="placeholder-note detail-placeholder">
-        Voting, editing, and deletion are intentionally unavailable until
-        your FastAPI backend provides those endpoints.
-      </p>
+      <div>
+        <button>
+          Delete
+        </button>  
+      </div>
     </article>
   );
 }

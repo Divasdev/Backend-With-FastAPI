@@ -4,7 +4,8 @@ import FeedPage from './pages/FeedPage';
 import LoginPage from './pages/LoginPage';
 import PostPage from './pages/PostPage';
 import RegisterPage from './pages/RegisterPage';
-
+import CreatePage from './pages/CreatePage';
+import EditPage from './pages/EditPage';
 export default function App() {
   return (
     <Routes>
@@ -15,6 +16,8 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/create" element={<CreatePage />} />
+      <Route path="/edit" element={<EditPage />} />
     </Routes>
   );
 }

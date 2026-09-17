@@ -17,7 +17,7 @@ export default function Layout() {
             <NavLink className="button small-button" to="/register">Join SnipShare</NavLink>
             <NavLink to="/" end>Explore</NavLink>
             <NavLink to="/create">Share Snippet</NavLink>
-            <NavLink to="/edit">Edit Snippet</NavLink>
+            <NavLink to={`/posts/${id}/edit`}>Edit Snippet</NavLink>
             
 
           </div>

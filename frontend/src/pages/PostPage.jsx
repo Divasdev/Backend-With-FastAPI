@@ -5,12 +5,26 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
+
 export default function PostPage() {
   const navigate=useNavigate()
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  function handleDelete(){
+    if (!window.confirm('Delete this Snippet?'))
+      return;
+    fetch(`/api/snippets/${id}`,{
+      method:'DELETE',
+    })
+    .then((res)=>{
+      if (!res.ok) throw new Error('Failed to delete');
+        navigate('/');
+    })
+    .catch((err)=>alert(err.message));
+  }
 
   useEffect(() => {
     fetch(`/api/snippets/${id}`)
@@ -72,9 +86,16 @@ export default function PostPage() {
       </div>
 
       <div>
-        <button>
-          Delete
-        </button>  
+         <button
+        className="button"
+        style={{ background: '#e53e3e', marginTop: '1rem' }}
+        onClick={handleDelete}
+      >
+        Delete Snippet
+      </button>
+      {/* Next to the delete button */}
+      <Link className="button" to={`/posts/${id}/edit`}>Edit Snippet</Link>
+
       </div>
     </article>
   );

@@ -14,10 +14,11 @@ export default function App() {
         <Route path="/posts/:id" element={<PostPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/create" element={<CreatePage />} />
       <Route path="/posts/:id/edit" element={<EditPage />} />
+      </Route>
+      
     </Routes>
   );
 }

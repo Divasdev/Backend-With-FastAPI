@@ -15,7 +15,7 @@ export default function Layout() {
           <div className="auth-nav">
             <NavLink to="/login">Log in</NavLink>
             <NavLink className="button small-button" to="/register">Join SnipShare</NavLink>
-            <NavLink to="/" end>Explore</NavLink>
+            
             <NavLink to="/create">Share Snippet</NavLink>
             
 

@@ -46,7 +46,7 @@ export default function CreatePage() {
       <div className="editor-heading">
         <p className="eyebrow">New snippet</p>
         <h1>Share a Snippet</h1>
-        {error& <p style={{color:'red'}}>{error}</p>}
+        {error&& <p style={{color:'red'}}>{error}</p>}
 
         <p>Paste your code, give it a title, and share it with the community.</p>
       </div>

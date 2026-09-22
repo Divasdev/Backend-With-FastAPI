@@ -6,6 +6,9 @@ from typing import Annotated
 from sqlmodel import Field,Session,SQLModel,create_engine,select 
 from datetime import date
 from starlette.middleware.cors import CORSMiddleware
+from routers import posts 
+
+
 sqlite_file_name="database.db"
 sqlite_url=f"sqlite:///{sqlite_file_name}"
 
@@ -50,6 +53,10 @@ SessionDep=Annotated[Session,Depends(get_session)]
 app=FastAPI()
 
 
+app.include_router(posts.router)
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # your React dev server
@@ -62,62 +69,3 @@ app.add_middleware(
 def on_startup():
    create_db_and_tables()
 
-@app.post("/api/snippets/",response_model=SnipPublic)
-
-def create_snip(snip:SnipCreate,session:SessionDep):
-   db_snip=Snip.model_validate(snip)
-   session.add(db_snip)
-   session.commit()
-   session.refresh(db_snip)
-   return db_snip
-
-
-@app.get("/api/snippets/",response_model=list[SnipPublic])
-def read_heroes(
-   session:SessionDep,
-   offset:int=0,
-   limit:Annotated[int,Query(le=100)]=100,
-   ):
-   
-   snipps=session.exec(
-      select(Snip)
-      .offset(offset)
-      .limit(limit) 
-   ).all()
-   
-   return snipps 
-
-@app.get("/api/snippets/{id}",response_model=SnipPublic)
-def  read_hero(
-   id:int,
-   session:SessionDep
-):
-   snip=session.get(Snip,id)
-   if not snip:
-      raise HTTPException(status_code=404,detail="Snip not Found")
-   
-   return snip
-
-
-@app.patch("/api/snippets/{id}",response_model=SnipPublic)
-def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
-   snip_db=session.get(Snip,id)
-   if not snip_db:
-      raise HTTPException(status_code=404,detail="Snippet not found")
-   snip_data=snip.model_dump(exclude_unset=True)
-   snip_db.sqlmodel_update(snip_data)
-   session.add(snip_db)
-   session.commit()
-   session.refresh(snip_db)
-   return snip_db
-   
-   
-@app.delete("/api/snippets/{id}")
-def delete_hero(id:int,session:SessionDep):
-   snip=session.get(Snip,id)
-   if not snip:
-      raise HTTPException(status_code=404,detail="Snippet not found")
-   session.delete(snip)
-   session.commit()
-   
-   return {"ok":True}

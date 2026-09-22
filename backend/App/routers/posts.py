@@ -32,7 +32,7 @@ def read_snippets(
    
    snipps=session.exec(
       select(Snip)
-      .order_by(Snip.id.desc())
+      .order_by(Snip.id.desc()) # type: ignore
       .offset(offset)
       .limit(limit) 
    ).all()

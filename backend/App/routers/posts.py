@@ -2,15 +2,15 @@ from fastapi import APIRouter,HTTPException, Query
 from typing import Annotated
 from sqlmodel import select
 
-from main import SessionDep
+from ..database import SessionDep
+
 from ..models import Snip,SnipCreate,SnipPublic,SnipUpdate
 
 
-router=APIRouter(
-   
-   prefix="/api/snippets/",
-   tags=["snippets"],
-   responses={404:{"description":"Not Found"}}
+router = APIRouter(
+    prefix="/api/snippets",
+    tags=["snippets"],
+    responses={404: {"description": "Not Found"}},
 )
 
 @router.post("/",response_model=SnipPublic)
@@ -23,15 +23,16 @@ def create_snip(snip:SnipCreate,session:SessionDep):
    return db_snip
 
 
-@router.get("",response_model=list[SnipPublic])
-def read_heroes(
+@router.get("/",response_model=list[SnipPublic])
+def read_snippets(
    session:SessionDep,
-   offset:int=0,
-   limit:Annotated[int,Query(le=100)]=100,
+   offset:Annotated[int,Query(ge=0)]=0,
+   limit:Annotated[int,Query(ge=1,le=100)]=100,
    ):
    
    snipps=session.exec(
       select(Snip)
+      .order_by(Snip.id.desc())
       .offset(offset)
       .limit(limit) 
    ).all()
@@ -39,7 +40,7 @@ def read_heroes(
    return snipps 
 
 @router.get("/{id}",response_model=SnipPublic)
-def  read_hero(
+def read_snippet(
    id:int,
    session:SessionDep
 ):
@@ -64,7 +65,7 @@ def update_snip(id:int,session:SessionDep,snip:SnipUpdate):
    
    
 @router.delete("/{id}")
-def delete_hero(id:int,session:SessionDep):
+def delete_snippet(id:int,session:SessionDep):
    snip=session.get(Snip,id)
    if not snip:
       raise HTTPException(status_code=404,detail="Snippet not found")

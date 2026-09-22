@@ -1,14 +1,9 @@
-from fastapi import FastAPI,Depends,Query,Request,Body
-from fastapi import Depends, FastAPI, Query,Request,Body
-from  pydantic import  BaseModel,Field
-from fastapi import HTTPException
-from typing import Annotated
-from sqlmodel import Field,Session,SQLModel,create_engine,select 
-from datetime import date
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from routers import posts 
+from .routers import posts
+from .database import create_db_and_tables
 
-from database import create_db_and_tables
+
 
 
 
@@ -32,4 +27,3 @@ def on_startup():
    create_db_and_tables()
    
 app.include_router(posts.router)
-

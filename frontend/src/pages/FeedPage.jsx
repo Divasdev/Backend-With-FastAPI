@@ -10,7 +10,7 @@ export default function FeedPage() {
   const [language, setLanguage] = useState('All languages');
 
   useEffect(()=>{
-    fetch('api/snippets/')
+    fetch('/api/snippets/')
     .then((res)=>{
       if (!res.ok) throw new Error("Failed to Fetch Snippets");
         return res.json();
@@ -47,14 +47,13 @@ export default function FeedPage() {
         <Link className="button hero-button" to="/register">Join the community <span>→</span></Link>
       </section>
       <section className="feed-toolbar" aria-label="Feed controls">
-        <div><h2>Latest snippets</h2><span>Static preview data — no API connected</span></div>
+        <div><h2>Latest snippets</h2><span>Small solutions shared by the community</span></div>
         <label className="filter-control">Filter by language
           <select value={language} onChange={(event) => setLanguage(event.target.value)}>
             {languages.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
       </section>
-      <p className="placeholder-note">This is display-only sample content. Replace it with data from your FastAPI API when you build the backend.</p>
       {visiblePosts.length === 0 && <div className="empty-state"><h2>No snippets in this language yet.</h2><p>Try another filter.</p></div>}
       <div className="post-list">
         {visiblePosts.map((post) => <PostCard key={post.id} post={post} />)}

@@ -14,7 +14,7 @@ export default function EditPage() {
       fetch(`/api/snippets/${id}`)
          .then((res) => {
             if (!res.ok) {
-               throw new Error("Cou   ld not load snippet");
+               throw new Error("Could not load snippet");
             }
 
             return res.json();
@@ -75,7 +75,7 @@ export default function EditPage() {
       return <p>Loading...</p>;
    }
 
-   if (error) {
+   if (error && !form) {
       return <p>{error}</p>;
    }
 
@@ -85,6 +85,7 @@ export default function EditPage() {
             <p className="eyebrow">Editing</p>
 
             <h1>Edit Snippet</h1>
+            {error && <p role="alert">{error}</p>}
 
             <p>Update your snippet&apos;s details or code below.</p>
          </div>

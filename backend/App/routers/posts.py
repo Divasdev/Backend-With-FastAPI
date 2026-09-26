@@ -72,4 +72,4 @@ def delete_snippet(id:int,session:SessionDep):
    session.delete(snip)
    session.commit()
    
-   return {"ok":True}
+   

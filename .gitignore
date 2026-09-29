@@ -47,3 +47,6 @@ venv.bak/
 # Environment variables
 .env
 .env.local
+
+# SQLite databases (recreated by create_all on startup)
+*.db

@@ -1,7 +1,12 @@
 from fastapi import FastAPI,Depends,HTTPException,status
+from sqlmodel import Session, select
 from starlette.middleware.cors import CORSMiddleware
 from .routers import posts
-from .database import create_db_and_tables
+from .database import create_db_and_tables,get_session
+from .models import User,UserCreate,UserRead
+
+
+
 
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta, timezone
@@ -15,14 +20,14 @@ from jwt.exceptions import InvalidTokenError
 from .config import settings
 
 
-oauth2_scheme=OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme=OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 password_hash=PasswordHash.recommended()
 
 
 app=FastAPI()
 
-SECRET_KEY=settings.secret_key
+SECRET_KEY=settings.secret_key.get_secret_value()
 ALGORITHM=settings.algorithm
 
 
@@ -47,6 +52,9 @@ app.include_router(posts.router)
 def verify_password(plain_password,hashed_password):
     return password_hash.verify(plain_password,hashed_password)
 
+def hash_password(password:str) ->str:
+    return password_hash.hash(password)
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -57,5 +65,34 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+@app.post("/auth/register",response_model=UserRead,status_code=status.HTTP_201_CREATED)
+
+def register_user(user_in:UserCreate,session:Session=Depends(get_session)):
+    email=user_in.email.lower()
+    
+    existing=session.exec(select(User).where(User.email==email)).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+        
+    user=User(email=email,hashed_password=hash_password(user_in.password))
+        
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    
+    return user 
+        
+    
+    
+    
+    
+    
+
 
 

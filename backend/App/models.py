@@ -1,15 +1,24 @@
 from sqlmodel import SQLModel,Field
 from pydantic import BaseModel, field_validator
 
-from datetime import date
+from datetime import datetime,timezone
  
 
-class User(SQLModel):
-    username:str|None=None
-    email:str|None=Field(unique=True,default=None)
+class User(SQLModel,table=True):
+    id:int|None=Field(default=None,primary_key=True)
+    email:str|None=Field(unique=True,index=True)
     hashed_password:str
-    created_at: date|None=None
-
+    created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
+    
+    
+class UserCreate(SQLModel):
+    email:str
+    password:str=Field(min_length=8)
+    
+class UserRead(SQLModel):
+    id:int
+    email:str
+    created_at:datetime
 
     
 
@@ -29,13 +38,13 @@ class SnipBase(SQLModel):
    
 class Snip(SnipBase,table=True):
    id:int|None=Field(default=None,primary_key=True)
-   created_at:date=Field(default_factory=date.today)
+   created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
    vote_count: int = Field(default=0) 
 class SnipCreate(SnipBase):
    pass 
 class SnipPublic(SnipBase):
     id: int
-    created_at: date
+    created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     vote_count: int = Field(default=0) 
 
 class SnipUpdate(SQLModel):

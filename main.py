@@ -1,135 +1,153 @@
-from fastapi import Depends, FastAPI, Query,Request,Body
-from fastapi.responses import PlainTextResponse,JSONResponse
-from  pydantic import  BaseModel,Field
-from fastapi import HTTPException
-from starlette.exceptions import HTTPException as starletteHTTPException 
-from fastapi.exceptions import RequestValidationError
-from fastapi.encoders import jsonable_encoder
 from typing import Annotated
-from sqlmodel import Field,Session,SQLModel,create_engine,select 
+
+from fastapi import Depends, FastAPI,HTTPException,status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import jwt
+from pydantic import BaseModel
+from pwdlib import PasswordHash
+from datetime import datetime, timedelta, timezone
+from typing import Annotated
+from jwt.exceptions import InvalidTokenError
+
+SECRET_KEY="0cbf66312ff039f37a9d9ccfa6ab6b09ec55b3b4a07fb5b8a200d2bdcc6bbbe9"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "$argon2id$v=19$m=65536,t=3,p=4$wagCPXjifgvUFBzq4hqe3w$CYaIb8sB+wtD+Vu/P4uod1+Qof8h+1g7bbDlBID48Rc",
+        "disabled": False,
+    }
+}
+
+
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+
+class User(BaseModel):
+    username: str
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
+
+
+class UserInDB(User):
+    hashed_password:str
+
+
+password_hash=PasswordHash.recommended()
+DUMMY_HASH=password_hash.hash("dummypassword")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+app = FastAPI()
+
+def verify_password(plain_password,hashed_password):
+    return password_hash.verify(plain_password,hashed_password)
+
+
+def get_password_hash(password):
+    return password_hash.hash(password)
+
  
- 
- 
- 
+def get_user(db,username:str):
+    if username in db:
+        user_dict=db[username]
+        return UserInDB(**user_dict)
 
-sqlite_file_name="database.db"
-sqlite_url=f"sqlite:///{sqlite_file_name}"
-
-connect_args={"check_same_thread":False}
-engine=create_engine(sqlite_url,connect_args=connect_args)
-
-
-
-class HeroBase(SQLModel):
-    name:str=Field(index=True)
-    age:int|None=Field(default=None,index=True)
-
-class Hero(HeroBase,table=True):
-    id:int|None=Field(default=None,primary_key=True)
-   
-    secret_name:str
+def authenticate_user(fake_db,username:str,password:str):
+    user=get_user(fake_db,username)
     
+    if not user:
+        verify_password(password,DUMMY_HASH)
+        return False
     
-class HeroPublic(HeroBase):
-    id:int
+    if not verify_password(password,user.hashed_password):
+        return False
     
-    
-class HeroCreate(HeroBase):
-    secret_name:str
-    
-    
-class HeroUpdate():
-    name:str|None=None
-    age:int|None=None
-    secret_name:str|None=None
-
-    def model_dump(self, *, exclude_unset=False):
-        raise NotImplementedError
-    
-    
-
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-    
-def get_session():
-    with Session(engine) as session:
-        yield session 
+    return user 
         
-SessionDep=Annotated[Session,Depends(get_session)]
+        
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
-app=FastAPI()
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-    
 
-    
-@app.post("/heroes/", response_model=HeroPublic)
-def create_hero(hero: HeroCreate, session: SessionDep):
-    db_hero = Hero.model_validate(hero)
-    session.add(db_hero)
-    session.commit()
-    session.refresh(db_hero)
-    return db_hero
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
 
-    
-@app.get("/heroes/", response_model=list[HeroPublic])
-def read_heroes(
-    session:SessionDep,
-    offset:int=0,
-    limit:Annotated[int,Query(le=100)]=100,
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
-    heroes=session.exec(
-        select(Hero)
-        .offset(offset)
-        .limit(limit)
-    ).all()
-    return heroes
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
 
 
-@app.get("/heroes/{hero_id}",response_model=HeroPublic)
-def read_hero(hero_id: int, session: SessionDep) -> Hero:
-    hero = session.get(Hero, hero_id)
-    if not hero:
-        raise HTTPException(status_code=404, detail="Hero not found")
-    return hero
-
-
-
-@app.patch("/heroes/{hero_id}", response_model=HeroPublic)
-def update_hero(hero_id: int, hero: HeroUpdate, session: SessionDep):
-    hero_db = session.get(Hero, hero_id)
-    if not hero_db:
-        raise HTTPException(status_code=404, detail="Hero not found")
-    hero_data = hero.model_dump(exclude_unset=True)
-    hero_db.sqlmodel_update(hero_data)
-    session.add(hero_db)
-    session.commit()
-    session.refresh(hero_db)
-    return hero_db
+@app.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> Token:
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
 
 
-@app.delete("/heroes/{hero_id}")
-def delete_hero(hero_id: int, session: SessionDep):
-    hero = session.get(Hero, hero_id)
-    if not hero:
-        raise HTTPException(status_code=404, detail="Hero not found")
-    session.delete(hero)
-    session.commit()
-    return {"ok": True}
+@app.get("/users/me")
+async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
+    return current_user
+
+@app.get("/users/me/items/")
+async def read_own_items(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 
-         
-        
-  
-
-
-    
-    
-    
 

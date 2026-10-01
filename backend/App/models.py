@@ -1,7 +1,17 @@
 from sqlmodel import SQLModel,Field
-from pydantic import field_validator
+from pydantic import BaseModel, field_validator
 
-from datetime import date 
+from datetime import date
+ 
+
+class User(SQLModel):
+    username:str|None=None
+    email:str|None=Field(unique=True,default=None)
+    hashed_password:str
+    created_at: date|None=None
+
+
+    
 
 
 class SnipBase(SQLModel):

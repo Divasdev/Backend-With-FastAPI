@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from starlette.middleware.cors import CORSMiddleware
 from .routers import posts
 from .database import create_db_and_tables,get_session
-from .models import User,UserCreate,UserRead
+from .models import User,UserCreate,UserRead,Token
 
 
 
@@ -87,12 +87,71 @@ def register_user(user_in:UserCreate,session:Session=Depends(get_session)):
     session.refresh(user)
     
     return user 
+
+
+@app.post("/auth/login",response_model=Token)
+
+def login(
+    form_data:Annotated[OAuth2PasswordRequestForm,Depends()],
+    session:Session=Depends(get_session),
+    
+):
+    email=form_data.username.lower()
+    
+    
+    user=session.exec(select(User).where(User.email==email)).first()
+    
+    
+    if not user or not verify_password(
+        form_data.password,
+        user.hashed_password):
         
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect email or password",
+        headers={"WWW-Authenticate":"Bearer"},
+    )
+        
+        
+    access_token=create_access_token(
+        data={"sub":str(user.id)},
+        expires_delta=timedelta(minutes=settings.access_token_expire_minutes)
+    )
     
-    
-    
-    
-    
+    return {"access_token":access_token,"token_type":"bearer"}
 
 
+def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Session = Depends(get_session),
+) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # 1. Check the wristband: real signature? not expired?
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except InvalidTokenError:
+        raise credentials_exception
+
+    # 2. Does this user still exist?
+    user = session.get(User, int(user_id))
+    if user is None:
+        raise credentials_exception
+
+    # 3. Hand the user to the route
+    return user
+
+         
+@app.get("/users/me",response_model=UserRead)
+def read_me(current_user:Annotated[User,Depends(get_current_user)]):
+    return current_user
+
+ 
+    
 

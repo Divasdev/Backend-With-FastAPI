@@ -21,6 +21,10 @@ class UserRead(SQLModel):
     created_at:datetime
 
     
+class Token(SQLModel):
+    access_token:str
+    token_type:str
+
 
 
 class SnipBase(SQLModel):

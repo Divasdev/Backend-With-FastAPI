@@ -100,8 +100,6 @@ pre { margin: 0; overflow: auto; }
 /* ── Notices ──────────────────────────────────────────────── */
 .notice { margin: 0 0 17px; padding: 10px 12px; border-radius: 5px; font-size: 13px; }
 .error { color: #8a3d37; background: #f9e8e5; border: 1px solid #eccbc5; }
-.placeholder-note { margin: 0 0 17px; padding: 11px 13px; color: #52675f; background: #eef4f0; border: 1px solid #ceddd5; border-radius: 5px; font-size: 13px; line-height: 1.5; }
-.placeholder-notice { margin: 0; padding: 10px 12px; color: #52675f; background: #eef4f0; border: 1px solid #ceddd5; border-radius: 5px; font-size: 13px; line-height: 1.45; }
 
 /* ── Auth Pages ──────────────────────────────────────────── */
 .auth-page { display: grid; place-items: start center; padding: 68px 0; }
@@ -147,7 +145,6 @@ pre { margin: 0; overflow: auto; }
 .detail-vote button { padding: 6px 9px; border: 1px solid #d5d9d1; border-radius: 4px; color: #4d675e; background: #fffefa; font-size: 12px; font-weight: 600; transition: border-color .15s ease, background .15s ease; }
 .detail-vote button:hover { border-color: #8caaa0; background: #f2f8f5; }
 .detail-vote strong { color: #454a41; font: 500 13px 'DM Mono', monospace; }
-.detail-placeholder { margin-top: 22px; }
 
 /* ── Custom Scrollbars ───────────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }

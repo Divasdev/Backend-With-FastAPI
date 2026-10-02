@@ -1,13 +1,36 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { API_URL } from '../api/api';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setIsSubmitted(true);
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+
+      if (!res.ok) {
+        setError(res.status === 400 ? 'Email already registered' : 'Something went wrong. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      navigate('/login');
+    } catch {
+      setError('Could not reach the server. Is the backend running?');
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -15,13 +38,12 @@ export default function RegisterPage() {
       <div className="auth-card">
         <p className="eyebrow">Make it useful</p>
         <h1>Join SnipShare</h1>
-        <p className="auth-intro">This is a visual placeholder only. Your future FastAPI backend will create accounts and store passwords securely.</p>
+        <p className="auth-intro">Create an account to share your own snippets.</p>
+        {error && <p className="notice error" role="alert">{error}</p>}
         <form onSubmit={handleSubmit} className="form-stack">
-          <label>Username<input required minLength="2" autoComplete="username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} /></label>
           <label>Email address<input required type="email" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-          <label>Password<input required minLength="4" type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
-          {isSubmitted && <p className="notice placeholder-notice">No account was created. Connect this form to your FastAPI registration endpoint when it is ready.</p>}
-          <button className="button full-width">Create account</button>
+          <label>Password (at least 8 characters)<input required minLength="8" type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
+          <button className="button full-width" disabled={submitting}>{submitting ? 'Creating account...' : 'Create account'}</button>
         </form>
         <p className="auth-switch">Already a member? <Link to="/login">Log in</Link></p>
       </div>

@@ -25,7 +25,7 @@ def create_snip(
    session:SessionDep,
    
    ):
-   db_snip=Snip(**snip_in.model_dump(),owner_id=current_user.id)
+   db_snip=Snip(**snip_in.model_dump(),owner_id=current_user.id) # type: ignore
    session.add(db_snip)
    session.commit()
    session.refresh(db_snip)

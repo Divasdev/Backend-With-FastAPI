@@ -32,6 +32,7 @@ class SnipBase(SQLModel):
    language:str 
    code:str 
    description:str = ""
+   
 
    @field_validator("title", "language", "code")
    @classmethod
@@ -42,12 +43,17 @@ class SnipBase(SQLModel):
    
 class Snip(SnipBase,table=True):
    id:int|None=Field(default=None,primary_key=True)
-   created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
+   owner_id: int = Field(foreign_key="user.id", index=True) 
+   created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+   updated_at: datetime | None = None        
    vote_count: int = Field(default=0) 
+   
 class SnipCreate(SnipBase):
    pass 
+
 class SnipPublic(SnipBase):
     id: int
+    owner_id:int
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     vote_count: int = Field(default=0) 
 

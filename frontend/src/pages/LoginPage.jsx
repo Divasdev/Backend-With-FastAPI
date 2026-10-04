@@ -12,6 +12,7 @@ export default function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
 
@@ -32,10 +33,10 @@ export default function LoginPage() {
         <h1>Log in to SnipShare</h1>
         <p className="auth-intro">Use the email and password you registered with.</p>
         {error && <p className="notice error" role="alert">{error}</p>}
-        <form onSubmit={handleSubmit} className="form-stack">
+        <form onSubmit={handleSubmit} className="form-stack" aria-busy={submitting}>
           <label>Email address<input required type="email" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
           <label>Password<input required type="password" autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
-          <button className="button full-width" disabled={submitting}>{submitting ? 'Logging in...' : 'Log in'}</button>
+          <button className="button full-width" disabled={submitting}>{submitting && <span className="button-spinner" aria-hidden="true" />}{submitting ? 'Logging in...' : 'Log in'}</button>
         </form>
         <p className="auth-switch">New here? <Link to="/register">Create an account</Link></p>
       </div>

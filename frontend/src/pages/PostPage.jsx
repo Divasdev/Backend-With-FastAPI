@@ -1,3 +1,5 @@
+import { useAuth } from '../auth/AuthContext';
+import { apiFetch } from '../api/api';
 import { useEffect, useState } from 'react';
 import { Link, useParams,Navigate, useNavigate} from 'react-router-dom';
 
@@ -7,6 +9,7 @@ function formatDate(dateString) {
 
 
 export default function PostPage() {
+  const { user } = useAuth();
   const navigate=useNavigate()
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -16,7 +19,7 @@ export default function PostPage() {
   function handleDelete(){
     if (!window.confirm('Delete this Snippet?'))
       return;
-    fetch(`/api/snippets/${id}`,{
+    apiFetch(`/api/snippets/${id}`,{
       method:'DELETE',
     })
     .then((res)=>{
@@ -27,7 +30,7 @@ export default function PostPage() {
   }
 
   useEffect(() => {
-    fetch(`/api/snippets/${id}`)
+    apiFetch(`/api/snippets/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error('Snippet not found');
         return res.json();
@@ -85,7 +88,7 @@ export default function PostPage() {
         </pre>
       </div>
 
-      <div>
+      {user?.id === post.owner_id && <div>
          <button
         className="button"
         style={{ background: '#e53e3e', marginTop: '1rem' }}
@@ -96,7 +99,7 @@ export default function PostPage() {
       {/* Next to the delete button */}
       <Link className="button" to={`/posts/${id}/edit`}>Edit Snippet</Link>
 
-      </div>
+      </div>}
     </article>
   );
 }

@@ -1,8 +1,11 @@
+import { useAuth } from '../auth/AuthContext';
+import { apiFetch } from '../api/api';
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditPage() {
    const { id } = useParams();
+   const { user } = useAuth();
    const navigate = useNavigate();
 
    const [form, setForm] = useState(null);
@@ -11,7 +14,7 @@ export default function EditPage() {
    const [submitting, setSubmitting] = useState(false);
 
    useEffect(() => {
-      fetch(`/api/snippets/${id}`)
+      apiFetch(`/api/snippets/${id}`)
          .then((res) => {
             if (!res.ok) {
                throw new Error("Could not load snippet");
@@ -20,6 +23,7 @@ export default function EditPage() {
             return res.json();
          })
          .then((data) => {
+            if (data.owner_id !== user.id) throw new Error("You can only edit your own snippets.");
             setForm({
                title: data.title,
                language: data.language,
@@ -33,7 +37,7 @@ export default function EditPage() {
             setError(err.message);
             setLoading(false);
          });
-   }, [id]);
+   }, [id, user.id]);
 
    function handleChange(e) {
       setForm({
@@ -48,7 +52,7 @@ export default function EditPage() {
       setSubmitting(true);
       setError(null);
 
-      fetch(`/api/snippets/${id}`, {
+      apiFetch(`/api/snippets/${id}`, {
          method: "PATCH",
          headers: {
             "Content-Type": "application/json",

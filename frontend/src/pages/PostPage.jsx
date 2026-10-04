@@ -1,7 +1,7 @@
 import { useAuth } from '../auth/AuthContext';
 import { apiFetch } from '../api/api';
 import { useEffect, useState } from 'react';
-import { Link, useParams,Navigate, useNavigate} from 'react-router-dom';
+import { Link, useParams, useNavigate} from 'react-router-dom';
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
@@ -9,24 +9,30 @@ function formatDate(dateString) {
 
 
 export default function PostPage() {
-  const { user } = useAuth();
+  const { user, setNotice } = useAuth();
   const navigate=useNavigate()
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  function handleDelete(){
-    if (!window.confirm('Delete this Snippet?'))
-      return;
-    apiFetch(`/api/snippets/${id}`,{
-      method:'DELETE',
-    })
-    .then((res)=>{
-      if (!res.ok) throw new Error('Failed to delete');
-        navigate('/');
-    })
-    .catch((err)=>alert(err.message));
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  async function handleDelete() {
+    if (deleting) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await apiFetch(`/api/snippets/${id}`, { method: 'DELETE' });
+      setNotice('Snippet deleted. It has been removed from the feed.');
+      navigate('/');
+    } catch (error) {
+      setDeleteError(error.message);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   useEffect(() => {
@@ -45,12 +51,13 @@ export default function PostPage() {
       });
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="page-loader" role="status">Loading snippet...</p>;
 
   if (error || !post) {
     return (
       <div className="empty-state">
-        <h2>Snippet not found.</h2>
+        <h2>Could not load this snippet.</h2>
+        <p role="alert">{error || 'Snippet not found.'}</p>
         <Link className="button" to="/">
           Back to feed
         </Link>
@@ -88,18 +95,24 @@ export default function PostPage() {
         </pre>
       </div>
 
-      {user?.id === post.owner_id && <div>
-         <button
-        className="button"
-        style={{ background: '#e53e3e', marginTop: '1rem' }}
-        onClick={handleDelete}
-      >
-        Delete Snippet
-      </button>
-      {/* Next to the delete button */}
-      <Link className="button" to={`/posts/${id}/edit`}>Edit Snippet</Link>
-
+      {user?.id === post.owner_id && <div className="detail-actions">
+        {confirmDelete ? <section className="delete-confirmation" aria-labelledby="delete-heading" aria-busy={deleting}>
+          <h2 id="delete-heading">Delete this snippet?</h2>
+          <p>“{post.title}” will be permanently removed. This cannot be undone.</p>
+          {deleteError && <p className="notice error" role="alert">{deleteError}</p>}
+          <div className="form-actions">
+            <button type="button" className="secondary-button" autoFocus disabled={deleting} onClick={() => setConfirmDelete(false)}>Keep snippet</button>
+            <button type="button" className="danger-button" disabled={deleting} onClick={handleDelete}>
+              {deleting && <span className="button-spinner" aria-hidden="true" />}
+              {deleting ? 'Deleting...' : 'Yes, delete snippet'}
+            </button>
+          </div>
+        </section> : <div className="owner-actions">
+          <Link className="button" to={`/posts/${id}/edit`}>Edit snippet</Link>
+          <button type="button" className="danger-button" onClick={() => { setDeleteError(''); setConfirmDelete(true); }}>Delete snippet</button>
+        </div>}
       </div>}
+
     </article>
   );
 }

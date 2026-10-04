@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { API_URL, setToken } from '../api/api';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -14,24 +16,11 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // FastAPI's login endpoint expects form data and calls the email field "username".
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ username: form.email, password: form.password }),
-      });
-
-      if (!res.ok) {
-        setError(res.status === 401 ? 'Incorrect email or password' : 'Something went wrong. Please try again.');
-        setSubmitting(false);
-        return;
-      }
-
-      const data = await res.json();
-      setToken(data.access_token);   // save the wristband
-      navigate('/');
-    } catch {
-      setError('Could not reach the server. Is the backend running?');
+      await login(form.email, form.password);
+      navigate(location.state?.from || '/', { replace: true });
+    } catch (error) {
+      setError(error.message);
+    } finally {
       setSubmitting(false);
     }
   }

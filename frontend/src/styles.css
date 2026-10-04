@@ -178,3 +178,8 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
   .detail-vote { flex-wrap: wrap; }
 }
 
+
+.notice.success { background: #e8f3eb; color: #245238; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.notice button { cursor: pointer; }
+.auth-nav { flex-wrap: wrap; }
+.account-label { overflow-wrap: anywhere; }

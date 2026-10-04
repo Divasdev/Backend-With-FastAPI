@@ -1,3 +1,4 @@
+import { apiFetch } from '../api/api';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 export default function CreatePage() {
@@ -20,7 +21,7 @@ export default function CreatePage() {
       e.preventDefault();
       setSubmitting(true);
       setError(null);
-      fetch('/api/snippets/',{
+      apiFetch('/api/snippets/',{
          method:'POST',
          headers:{
             'content-type':'application/json'},

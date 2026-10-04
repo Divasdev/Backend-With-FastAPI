@@ -24,14 +24,14 @@ a { color: inherit; }
 
 /* ── Navigation ──────────────────────────────────────────── */
 .main-nav { display: flex; align-items: center; gap: 24px; flex: 1; font-size: 14px; }
-.main-nav a, .auth-nav a { color: #686b60; text-decoration: none; position: relative; transition: color .18s ease; }
+.main-nav a, .auth-nav a:not(.button) { color: #686b60; text-decoration: none; position: relative; transition: color .18s ease; }
 .main-nav a::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1.5px; background: #355e55; border-radius: 1px; transition: width .22s ease; }
 .main-nav a:hover::after, .main-nav a.active:not(.new-link)::after { width: 100%; }
 .main-nav a:hover { color: #355e55; }
 .main-nav a.active:not(.new-link), .auth-nav a.active:not(.button) { color: #20221d; font-weight: 600; }
 .new-link { color: #355e55 !important; font-weight: 600; }
 .auth-nav { display: flex; align-items: center; gap: 17px; font-size: 14px; }
-.auth-nav a:hover { color: #355e55; }
+.auth-nav a:not(.button):hover { color: #355e55; }
 .welcome { color: #67695f; white-space: nowrap; }
 
 /* ── Buttons ─────────────────────────────────────────────── */
@@ -51,7 +51,7 @@ a { color: inherit; }
 .eyebrow { margin: 0 0 13px; color: #54756c; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 11px; }
 h1, h2, p { margin-top: 0; }
 .hero h1, .editor-heading h1, .auth-card h1 { margin-bottom: 16px; font: 700 clamp(37px, 5vw, 58px)/1.04 'Playfair Display', Georgia, serif; letter-spacing: -2px; }
-.hero h1 em { color: #477569; font-weight: 600; }
+.hero h1 em { color: #374441; font-weight: 600; }
 .hero-copy { max-width: 575px; color: #65685e; line-height: 1.6; font-size: 16px; margin-bottom: 0; }
 .hero-button { margin-bottom: 6px; min-width: 178px; white-space: nowrap; }
 
@@ -183,3 +183,39 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
 .notice button { cursor: pointer; }
 .auth-nav { flex-wrap: wrap; }
 .account-label { overflow-wrap: anywhere; }
+
+/* Profile photo selection and signed-in account */
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; overflow: hidden; background: #e5f0eb; color: #355e55; border: 1px solid #c5d1cb; font-size: 13px; font-weight: 700; }
+.avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.avatar-large { width: 72px; height: 72px; font-size: 23px; }
+.account-identity { display: inline-flex; align-items: center; gap: 9px; min-width: 0; max-width: 100%; }
+.account-identity .account-label { min-width: 0; }
+.profile-image-picker { display: grid; gap: 10px; min-width: 0; padding-bottom: 18px; border-bottom: 1px solid #e3e2d9; }
+.profile-image-heading { display: flex; align-items: center; gap: 14px; }
+.profile-image-heading p, .profile-image-note { color: #70736a; font-size: 12px; line-height: 1.5; margin: 5px 0 0; }
+.profile-image-picker input { margin: 0; min-width: 0; font-size: 12px; }
+.profile-image-picker input::file-selector-button { border: 0; border-radius: 4px; background: #e5f0eb; color: #355e55; padding: 7px 9px; margin-right: 8px; cursor: pointer; }
+.profile-image-selection { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 12px; }
+.profile-image-selection span { overflow-wrap: anywhere; min-width: 0; }
+.profile-image-selection button { text-decoration: underline; }
+.profile-image-picker .notice { margin: 0; }
+.header-content { height: auto; min-height: 72px; padding-top: 12px; padding-bottom: 12px; }
+.auth-nav { min-width: 0; }
+
+/* Visible feedback across navigation */
+.toast-region { position: fixed; right: 24px; bottom: 24px; z-index: 30; width: min(430px, calc(100vw - 32px)); pointer-events: none; }
+.toast { display: flex; align-items: center; gap: 12px; padding: 17px; background: #fffefa; color: #233e34; border: 1px solid #a4c8b4; border-left: 4px solid #355e55; border-radius: 10px; box-shadow: 0 10px 35px rgba(25, 50, 38, .2); pointer-events: auto; animation: toast-appear .2s ease-out; }
+.toast-icon { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #e5f0eb; font-weight: 700; }
+.toast p { margin: 0; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.toast button { flex-shrink: 0; margin-left: auto; border: 0; border-radius: 5px; background: transparent; color: #355e55; font-size: 24px; min-width: 36px; min-height: 36px; }
+.toast button:hover { background: #e5f0eb; }
+button:focus-visible, a:focus-visible { outline: 3px solid #62887c; outline-offset: 3px; }
+.button-spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: feedback-spin .7s linear infinite; flex-shrink: 0; }
+.detail-actions { margin-top: 24px; }
+.delete-confirmation { padding: 22px; border: 1px solid #e7beb8; border-radius: 8px; background: #fff7f4; }
+.delete-confirmation h2 { font-size: 20px; margin-bottom: 8px; }
+.delete-confirmation p { line-height: 1.5; overflow-wrap: anywhere; }
+@keyframes feedback-spin { to { transform: rotate(360deg); } }
+@keyframes toast-appear { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 650px) { .toast-region { right: 16px; bottom: 16px; } .delete-confirmation .form-actions { flex-wrap: wrap; gap: 12px; } }
+@media (prefers-reduced-motion: reduce) { .toast, .button-spinner { animation: none; } }

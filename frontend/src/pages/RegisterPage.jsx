@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_URL } from '../api/api';
+import { apiFetch } from '../api/api';
+import { useAuth } from '../auth/AuthContext';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { setNotice } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -14,21 +16,18 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/auth/register`, {
+      await apiFetch('/auth/register', {
+        anonymous: true,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ email: form.email.trim(), password: form.password }),
       });
 
-      if (!res.ok) {
-        setError(res.status === 400 ? 'Email already registered' : 'Something went wrong. Please try again.');
-        setSubmitting(false);
-        return;
-      }
-
+      setNotice('Account created successfully. Log in with your email and password.');
       navigate('/login');
-    } catch {
-      setError('Could not reach the server. Is the backend running?');
+    } catch (error) {
+      setError(error.message);
+    } finally {
       setSubmitting(false);
     }
   }

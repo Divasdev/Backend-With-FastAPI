@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { RequireAuth } from './auth/AuthContext';
 import Layout from './components/Layout';
 import FeedPage from './pages/FeedPage';
 import LoginPage from './pages/LoginPage';
@@ -15,8 +16,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/create" element={<CreatePage />} />
-      <Route path="/posts/:id/edit" element={<EditPage />} />
+      <Route path="/create" element={<RequireAuth><CreatePage /></RequireAuth>} />
+      <Route path="/posts/:id/edit" element={<RequireAuth><EditPage /></RequireAuth>} />
       </Route>
       
     </Routes>

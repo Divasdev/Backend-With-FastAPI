@@ -1,8 +1,12 @@
+import { useCallback } from 'react';
+import Toast from './Toast';
+import Avatar from './Avatar';
 import { useAuth } from '../auth/AuthContext';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 
 export default function Layout() {
   const { user, loading, logout, notice, setNotice, sessionError, retrySession } = useAuth();
+  const dismissNotice = useCallback(() => setNotice(''), [setNotice]);
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -16,7 +20,10 @@ export default function Layout() {
           </nav>
           <div className="auth-nav">
             {loading ? <span role="status">Checking session...</span> : user ? <>
-              <span className="account-label">Signed in as {user.email}</span>
+              <span className="account-identity">
+                <Avatar key={`${user.id}:${user.profile_image_url || ''}`} src={user.profile_image_url} email={user.email} />
+                <span className="account-label">Signed in as {user.email}</span>
+              </span>
               <NavLink to="/create">Share Snippet</NavLink>
               <button className="button small-button" onClick={logout}>Log out</button>
             </> : <>
@@ -28,10 +35,11 @@ export default function Layout() {
         </div>
       </header>
       <main className="page-content">
-        {notice && <div className="notice success" role="status">{notice} <button onClick={() => setNotice('')} aria-label="Dismiss notification">×</button></div>}
+
         {sessionError && <div className="notice error" role="alert">{sessionError} <button onClick={retrySession}>Retry session</button></div>}
         <Outlet />
       </main>
+      <Toast message={notice} onDismiss={dismissNotice} />
       <footer className="site-footer">Built for sharing small, useful pieces of code.</footer>
     </div>
   );

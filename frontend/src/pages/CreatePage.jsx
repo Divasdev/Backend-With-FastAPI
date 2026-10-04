@@ -1,8 +1,10 @@
+import { useAuth } from '../auth/AuthContext';
 import { apiFetch } from '../api/api';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 export default function CreatePage() {
    const navigate=useNavigate();
+   const { setNotice } = useAuth();
    const [form,setForm]=useState({
       title:"",
       language:"",
@@ -19,6 +21,7 @@ export default function CreatePage() {
 
    function handleSubmit(e){
       e.preventDefault();
+      if (submitting) return;
       setSubmitting(true);
       setError(null);
       apiFetch('/api/snippets/',{
@@ -31,8 +34,9 @@ export default function CreatePage() {
          if (!res.ok) throw new Error ('Failed to create Snippet');
          return res.json();
       })
-      .then(()=>{
-         navigate('/');
+      .then((snippet)=>{
+         setNotice('Snippet published! Your code is ready to share.');
+         navigate(`/posts/${snippet.id}`);
       })
       .catch((err)=>{
          setError(err.message);
@@ -47,14 +51,14 @@ export default function CreatePage() {
       <div className="editor-heading">
         <p className="eyebrow">New snippet</p>
         <h1>Share a Snippet</h1>
-        {error&& <p style={{color:'red'}}>{error}</p>}
+        {error&& <p className="notice error" role="alert">{error}</p>}
 
         <p>Paste your code, give it a title, and share it with the community.</p>
       </div>
 
       <form 
          onSubmit={handleSubmit}
-         className="snippet-form"
+         className="snippet-form" aria-busy={submitting}
       >
         <label>
           Title * 
@@ -88,8 +92,10 @@ export default function CreatePage() {
         </label>
 
         <div className="form-actions">
+          <button type="button" className="text-button" disabled={submitting} onClick={() => navigate('/')}>Cancel</button>
           <button type="submit" className="button"
           disabled={submitting}>
+            {submitting && <span className="button-spinner" aria-hidden="true" />}
             {submitting ? 'Creating...':"Share Snippet "}
             </button>
         </div>

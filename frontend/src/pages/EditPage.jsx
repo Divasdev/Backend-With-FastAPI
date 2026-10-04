@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditPage() {
    const { id } = useParams();
-   const { user } = useAuth();
+   const { user, setNotice } = useAuth();
    const navigate = useNavigate();
 
    const [form, setForm] = useState(null);
@@ -48,6 +48,7 @@ export default function EditPage() {
 
    function handleSubmit(e) {
       e.preventDefault();
+      if (submitting) return;
 
       setSubmitting(true);
       setError(null);
@@ -67,6 +68,7 @@ export default function EditPage() {
             return res.json();
          })
          .then(() => {
+            setNotice('Changes saved! Your snippet is up to date.');
             navigate(`/posts/${id}`);
          })
          .catch((err) => {
@@ -76,7 +78,7 @@ export default function EditPage() {
    }
 
    if (loading) {
-      return <p>Loading...</p>;
+      return <p className="page-loader" role="status">Loading your snippet...</p>;
    }
 
    if (error && !form) {
@@ -89,12 +91,12 @@ export default function EditPage() {
             <p className="eyebrow">Editing</p>
 
             <h1>Edit Snippet</h1>
-            {error && <p role="alert">{error}</p>}
+            {error && <p className="notice error" role="alert">{error}</p>}
 
             <p>Update your snippet&apos;s details or code below.</p>
          </div>
 
-         <form className="snippet-form" onSubmit={handleSubmit}>
+         <form className="snippet-form" aria-busy={submitting} onSubmit={handleSubmit}>
             <label>
                Title
 
@@ -146,11 +148,13 @@ export default function EditPage() {
             </label>
 
             <div className="form-actions">
+               <button type="button" className="text-button" disabled={submitting} onClick={() => navigate(`/posts/${id}`)}>Cancel</button>
                <button
                   type="submit"
                   className="button"
                   disabled={submitting}
                >
+                  {submitting && <span className="button-spinner" aria-hidden="true" />}
                   {submitting ? "Saving..." : "Save Changes"}
                </button>
             </div>

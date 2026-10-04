@@ -1,16 +1,19 @@
+import { useAuth } from '../auth/AuthContext';
+import { apiFetch } from '../api/api';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 
 
 export default function FeedPage() {
+  const { user } = useAuth();
   const[snippets,setSnippets]=useState([]);
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState(null);
   const [language, setLanguage] = useState('All languages');
 
   useEffect(()=>{
-    fetch('/api/snippets/')
+    apiFetch('/api/snippets/')
     .then((res)=>{
       if (!res.ok) throw new Error("Failed to Fetch Snippets");
         return res.json();
@@ -44,7 +47,7 @@ export default function FeedPage() {
           <h1>Share the snippet<br /><em>you’ll reuse tomorrow.</em></h1>
           <p className="hero-copy">Useful code, shared without the noise. Browse a growing collection of small solutions from the community.</p>
         </div>
-        <Link className="button hero-button" to="/register">Join the community <span>→</span></Link>
+        <Link className="button hero-button" to={user ? "/create" : "/register"}>{user ? "Share a snippet" : "Join the community"} <span>→</span></Link>
       </section>
       <section className="feed-toolbar" aria-label="Feed controls">
         <div><h2>Latest snippets</h2><span>Small solutions shared by the community</span></div>

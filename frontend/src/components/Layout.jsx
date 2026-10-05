@@ -2,15 +2,22 @@ import { useCallback } from 'react';
 import Toast from './Toast';
 import Avatar from './Avatar';
 import { useAuth } from '../auth/AuthContext';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 export default function Layout() {
   const { user, loading, logout, notice, setNotice, sessionError, retrySession } = useAuth();
+  const navigate = useNavigate();
   const dismissNotice = useCallback(() => setNotice(''), [setNotice]);
+
+  function handleLogout() {
+    logout();
+    navigate('/');
+  }
+
   return (
     <div className="app-shell">
       <header className="site-header">
-        <div className="header-content">
+        <div className={`header-content${user ? ' signed-in' : ''}`}>
           <Link className="brand" to="/" aria-label="SnipShare home">
             <span className="brand-mark">&lt;/&gt;</span>
             <span>SnipShare</span>
@@ -20,13 +27,17 @@ export default function Layout() {
           </nav>
           <div className="auth-nav">
             {loading ? <span role="status">Checking session...</span> : user ? <>
-              <span className="account-identity">
+              <NavLink className="button small-button" to="/create">Share snippet</NavLink>
+              <span className="account-identity" title={`Logged in as ${user.email}`}>
                 <Avatar key={`${user.id}:${user.profile_image_url || ''}`} src={user.profile_image_url} email={user.email} />
-                <span className="account-label">Signed in as {user.email}</span>
+                <span className="account-label">
+                  <span className="account-status">Logged in</span>
+                  <span className="account-email">{user.email}</span>
+                </span>
               </span>
-              <NavLink to="/create">Share Snippet</NavLink>
-              <button className="button small-button" onClick={logout}>Log out</button>
+              <button type="button" className="secondary-button small-button" onClick={handleLogout}>Log out</button>
             </> : <>
+              <span className="account-status signed-out">Not logged in</span>
               <NavLink to="/login">Log in</NavLink>
               <NavLink className="button small-button" to="/register">Join SnipShare</NavLink>
             </>}

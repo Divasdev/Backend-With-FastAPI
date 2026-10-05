@@ -51,7 +51,6 @@ export default function CreatePage() {
       <div className="editor-heading">
         <p className="eyebrow">New snippet</p>
         <h1>Share a Snippet</h1>
-        {error&& <p className="notice error" role="alert">{error}</p>}
 
         <p>Paste your code, give it a title, and share it with the community.</p>
       </div>
@@ -90,6 +89,8 @@ export default function CreatePage() {
             value={form.description} onChange={handleChange}
           />
         </label>
+
+        {error&& <p className="notice error" role="alert">{error}</p>}
 
         <div className="form-actions">
           <button type="button" className="text-button" disabled={submitting} onClick={() => navigate('/')}>Cancel</button>

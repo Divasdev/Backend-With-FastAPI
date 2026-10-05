@@ -76,6 +76,7 @@ export default function PostPage() {
           <div className="post-card-meta">
             <span className="language-pill">{post.language}</span>
             <span>Shared {formatDate(post.created_at)}</span>
+            {user?.id === post.owner_id && <span className="owner-pill">Your snippet</span>}
           </div>
 
           <h1>{post.title}</h1>

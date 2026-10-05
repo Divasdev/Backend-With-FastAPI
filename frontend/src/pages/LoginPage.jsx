@@ -32,6 +32,7 @@ export default function LoginPage() {
         <p className="eyebrow">Welcome back</p>
         <h1>Log in to SnipShare</h1>
         <p className="auth-intro">Use the email and password you registered with.</p>
+        {location.state?.from && !error && <p className="notice info">Log in to continue. You need an account to share or edit snippets.</p>}
         {error && <p className="notice error" role="alert">{error}</p>}
         <form onSubmit={handleSubmit} className="form-stack" aria-busy={submitting}>
           <label>Email address<input required type="email" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>

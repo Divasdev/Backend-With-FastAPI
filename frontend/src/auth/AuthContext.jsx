@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
       const profile = await (await apiFetch('/users/me')).json();
       setUser(profile);
       setSessionError('');
-      setNotice('You are now logged in.');
+      setNotice(`You're logged in as ${profile.email}.`);
     } catch (error) {
       clearToken();
       setNotice('');
@@ -72,9 +72,18 @@ export function AuthProvider({ children }) {
 }
 
 export function RequireAuth({ children }) {
-  const { user, loading, sessionError, retrySession } = useAuth();
+  const { user, loading, sessionError } = useAuth();
   const location = useLocation();
-  if (loading) return <p role="status">Checking your session...</p>;
-  if (sessionError) return <div role="alert">{sessionError} <button onClick={retrySession}>Retry</button></div>;
+  if (loading) return <p className="page-loader" role="status">Checking your session...</p>;
+  // Layout already shows the session error with a retry button above this page.
+  if (sessionError) return null;
   return user ? children : <Navigate to="/login" replace state={{ from: location.pathname }} />;
+}
+
+// Login and register are for visitors. Someone already logged in is sent on,
+// so they never see a login form while the header says they have an account.
+export function GuestOnly({ children }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  return user ? <Navigate to={location.state?.from || '/'} replace /> : children;
 }

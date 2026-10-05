@@ -1,7 +1,7 @@
 import { useAuth } from '../auth/AuthContext';
 import { apiFetch } from '../api/api';
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function EditPage() {
    const { id } = useParams();
@@ -82,7 +82,13 @@ export default function EditPage() {
    }
 
    if (error && !form) {
-      return <p>{error}</p>;
+      return (
+         <div className="empty-state">
+            <h2>Could not open the editor.</h2>
+            <p role="alert">{error}</p>
+            <Link className="button" to={`/posts/${id}`}>Back to snippet</Link>
+         </div>
+      );
    }
 
    return (
@@ -91,14 +97,13 @@ export default function EditPage() {
             <p className="eyebrow">Editing</p>
 
             <h1>Edit Snippet</h1>
-            {error && <p className="notice error" role="alert">{error}</p>}
 
             <p>Update your snippet&apos;s details or code below.</p>
          </div>
 
          <form className="snippet-form" aria-busy={submitting} onSubmit={handleSubmit}>
             <label>
-               Title
+               Title *
 
                <input
                   name="title"
@@ -110,7 +115,7 @@ export default function EditPage() {
             </label>
 
             <label>
-               Language
+               Language *
 
                <input
                   name="language"
@@ -122,7 +127,7 @@ export default function EditPage() {
             </label>
 
             <label>
-               Code
+               Code *
 
                <textarea
                   name="code"
@@ -146,6 +151,8 @@ export default function EditPage() {
                   onChange={handleChange}
                />
             </label>
+
+            {error && <p className="notice error" role="alert">{error}</p>}
 
             <div className="form-actions">
                <button type="button" className="text-button" disabled={submitting} onClick={() => navigate(`/posts/${id}`)}>Cancel</button>

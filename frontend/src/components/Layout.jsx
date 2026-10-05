@@ -47,7 +47,7 @@ export default function Layout() {
       </header>
       <main className="page-content">
 
-        {sessionError && <div className="notice error" role="alert">{sessionError} <button onClick={retrySession}>Retry session</button></div>}
+        {sessionError && <div className="notice error session-notice" role="alert">{sessionError} <button type="button" className="secondary-button small-button" onClick={retrySession}>Retry</button></div>}
         <Outlet />
       </main>
       <Toast message={notice} onDismiss={dismissNotice} />

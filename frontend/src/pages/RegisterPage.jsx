@@ -45,7 +45,7 @@ export default function RegisterPage() {
           <label>Password (at least 8 characters)<input required minLength="8" type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
           <button className="button full-width" disabled={submitting}>{submitting && <span className="button-spinner" aria-hidden="true" />}{submitting ? 'Creating account...' : 'Create account'}</button>
         </form>
-        <p className="auth-switch">Already a member? <Link to="/login">Log in</Link></p>
+        
       </div>
     </section>
   );

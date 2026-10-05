@@ -72,6 +72,7 @@ textarea { resize: vertical; min-height: 95px; }
 /* ── Post List / Cards ───────────────────────────────────── */
 .post-list { display: grid; gap: 12px; }
 .post-card { display: grid; grid-template-columns: 58px 1fr; padding: 21px 23px 20px 14px; background: #fffefa; border: 1px solid #e2e1d8; border-radius: 8px; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.post-card-main { min-width: 0; }
 .post-card:hover { border-color: #c5d1cb; box-shadow: 0 6px 20px rgba(42, 62, 52, .06); transform: translateY(-1px); }
 .vote-stack { display: flex; align-items: center; flex-direction: column; gap: 3px; padding-top: 1px; }
 .vote-stack button { border: 0; background: transparent; color: #9a9c93; padding: 1px 8px; font-size: 12px; transition: color .15s ease, transform .12s ease; }
@@ -80,6 +81,7 @@ textarea { resize: vertical; min-height: 95px; }
 .post-card-meta { display: flex; align-items: center; gap: 9px; color: #888a81; font-size: 12px; }
 .language-pill { display: inline-block; padding: 3px 7px; color: #326256; background: #e5f0eb; border-radius: 4px; font: 500 11px 'DM Mono', monospace; transition: background .15s ease; }
 .post-card:hover .language-pill { background: #d8ebe3; }
+.owner-pill { padding: 2px 7px; color: #466a60; border: 1px solid #c5d1cb; border-radius: 4px; font-size: 11px; font-weight: 600; }
 .post-card h2 { margin: 10px 0 7px; font: 700 21px 'Playfair Display', Georgia, serif; letter-spacing: -.35px; }
 .post-card h2 a { text-decoration: none; transition: color .15s ease; }
 .post-card h2 a:hover { color: #355e55; }
@@ -100,6 +102,9 @@ pre { margin: 0; overflow: auto; }
 /* ── Notices ──────────────────────────────────────────────── */
 .notice { margin: 0 0 17px; padding: 10px 12px; border-radius: 5px; font-size: 13px; }
 .error { color: #8a3d37; background: #f9e8e5; border: 1px solid #eccbc5; }
+.info { color: #2f4f45; background: #eaf2ee; border: 1px solid #cfe0d8; }
+.session-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.snippet-form .notice { margin: 0; }
 
 /* ── Auth Pages ──────────────────────────────────────────── */
 .auth-page { display: grid; place-items: start center; padding: 68px 0; }
@@ -182,7 +187,12 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
 .notice.success { background: #e8f3eb; color: #245238; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 .notice button { cursor: pointer; }
 .auth-nav { flex-wrap: wrap; }
-.account-label { overflow-wrap: anywhere; }
+.account-label { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; overflow: hidden; line-height: 1.25; }
+.account-status { display: inline-flex; align-items: center; gap: 6px; color: #2f6a4f; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
+.account-status::before { content: ''; width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: #3f9b6c; }
+.account-status.signed-out { color: #85877e; }
+.account-status.signed-out::before { background: #c5c8be; }
+.account-email { max-width: 230px; overflow: hidden; color: #20221d; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Profile photo selection and signed-in account */
 .avatar { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; overflow: hidden; background: #e5f0eb; color: #355e55; border: 1px solid #c5d1cb; font-size: 13px; font-weight: 700; }
@@ -203,7 +213,7 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
 .auth-nav { min-width: 0; }
 
 /* Visible feedback across navigation */
-.toast-region { position: fixed; right: 24px; bottom: 24px; z-index: 30; width: min(430px, calc(100vw - 32px)); pointer-events: none; }
+.toast-region { position: fixed; top: 84px; right: max(20px, calc((100vw - 1120px) / 2)); z-index: 30; width: min(430px, calc(100vw - 32px)); pointer-events: none; }
 .toast { display: flex; align-items: center; gap: 12px; padding: 17px; background: #fffefa; color: #233e34; border: 1px solid #a4c8b4; border-left: 4px solid #355e55; border-radius: 10px; box-shadow: 0 10px 35px rgba(25, 50, 38, .2); pointer-events: auto; animation: toast-appear .2s ease-out; }
 .toast-icon { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #e5f0eb; font-weight: 700; }
 .toast p { margin: 0; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
@@ -216,6 +226,16 @@ button:focus-visible, a:focus-visible { outline: 3px solid #62887c; outline-offs
 .delete-confirmation h2 { font-size: 20px; margin-bottom: 8px; }
 .delete-confirmation p { line-height: 1.5; overflow-wrap: anywhere; }
 @keyframes feedback-spin { to { transform: rotate(360deg); } }
-@keyframes toast-appear { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 650px) { .toast-region { right: 16px; bottom: 16px; } .delete-confirmation .form-actions { flex-wrap: wrap; gap: 12px; } }
+@keyframes toast-appear { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 650px) {
+  .toast-region { top: auto; right: 16px; bottom: 16px; }
+  .delete-confirmation .form-actions { flex-wrap: wrap; gap: 12px; }
+  .account-status.signed-out { display: none; }
+  /* Logged in: brand and Explore on the first row, the account and its actions on the second. */
+  .header-content.signed-in .main-nav { order: 0; flex: 1; }
+  .header-content.signed-in .auth-nav { flex-basis: 100%; flex-wrap: nowrap; gap: 10px; }
+  .header-content.signed-in .account-identity { order: -1; margin-right: auto; }
+  .auth-nav .button, .auth-nav .secondary-button { flex-shrink: 0; }
+}
+@media (max-width: 360px) { .account-label { display: none; } }
 @media (prefers-reduced-motion: reduce) { .toast, .button-spinner { animation: none; } }

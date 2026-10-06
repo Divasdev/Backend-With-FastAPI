@@ -6,12 +6,28 @@ React frontend with a synchronous FastAPI and SQLModel backend.
 
 From the project directory, open two terminals.
 
-Backend:
+Backend, first time only:
 
 ```sh
 cd backend
-python3 -m uvicorn App.main:app --reload --host 127.0.0.1 --port 8000
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
 ```
+
+Then open `backend/.env` and replace `SECRET_KEY` with the output of
+`openssl rand -hex 32`.
+
+Backend, every time:
+
+```sh
+cd backend
+source .venv/bin/activate
+python -m uvicorn App.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+If your prompt does not show `(.venv)`, you are using the global Python.
 
 Frontend:
 
@@ -24,12 +40,12 @@ Open http://localhost:5173 for the app and http://127.0.0.1:8000/docs
 for the API documentation. The Vite development server forwards `/api`, `/auth`, and `/users` requests
 to the backend. Both servers must stay running. Stop each with Ctrl+C.
 
-The backend uses `backend/App/database.db`, independent of the directory from
-which it is started. The root `main.py` is a separate Heroes practice exercise;
-it is not the SnipShare entry point.
+Settings are read from `backend/.env` (see `backend/App/config.py`). The backend
+uses `backend/App/database.db` unless `DATABASE_URL` in `.env` says otherwise.
+`practice/auth_practice.py` is a separate practice exercise; it is not the
+SnipShare entry point.
 
-If dependencies are missing, install `fastapi`, `sqlmodel`, and `uvicorn` in your
-Python environment and run `npm install` in `frontend`.
+If frontend dependencies are missing, run `npm install` in `frontend`.
 
 ## How the frontend connects
 

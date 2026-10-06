@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI
@@ -5,33 +6,29 @@ from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 
 from .auth import get_current_user, router as auth_router
+from .config import settings
 from .database import create_db_and_tables, get_session
 from .models import User, UserRead
 from .routers import posts
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Runs once when the server starts.
+    create_db_and_tables()
+    yield
 
 
+app = FastAPI(lifespan=lifespan)
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173"
-    ],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-
 
 
 app.include_router(posts.router)

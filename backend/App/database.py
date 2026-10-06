@@ -1,13 +1,11 @@
-from pathlib import Path
 from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session,SQLModel,create_engine
 
+from .config import settings
 
-sqlite_file_path = Path(__file__).resolve().parent / "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_path}"
 
-engine=create_engine(sqlite_url,connect_args={"check_same_thread":False})
+engine=create_engine(settings.database_url,connect_args={"check_same_thread":False})
 
 
    

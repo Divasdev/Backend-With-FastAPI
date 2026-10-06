@@ -107,7 +107,5 @@ def delete_snippet(
    
    session.delete(snip)
    session.commit()
-   
-   return {"ok":True}
 
 

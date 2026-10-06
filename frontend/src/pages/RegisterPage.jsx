@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { registerAccount } from '../api/register';
 import ProfileImagePicker from '../components/ProfileImagePicker';

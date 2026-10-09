@@ -86,12 +86,14 @@
                 message.textContent = "Registering...";
 
                 // Send form data to FastAPI
-                const response = await fetch("/register/", {
+                const response = 
+                await fetch("/register/", {
                     method: "POST",
                     body: new FormData(form)
                 });
 
                 const data = await response.json();
+                console.log(data)
 
                 if (!response.ok) {
                     throw new Error(

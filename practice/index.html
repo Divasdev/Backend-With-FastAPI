@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+
+  <form id="upload-form">
+    <p>
+      <label for="username">Username</label><br>
+      <input type="text" id="username" name="username" required>
+    </p>
+    <p>
+      <label for="email">Email address</label><br>
+      <input type="email" id="email" name="email" required>
+    </p>
+    <p>
+      <label for="password">Password (at least 8 characters)</label><br>
+      <input type="password" id="password" name="password" minlength="8" required>
+    </p>
+    <p>
+      <label for="confirm_password">Confirm password</label><br>
+      <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+    </p>
+    <p>
+      <label for="file">Upload your image</label><br>
+      <input type="file" id="file" name="file" accept="image/*" required>
+    </p>
+    <button type="submit">Register</button>
+  </form>
+
+  <p id="message"></p>
+  <img id="preview" alt="">
+
+  <script>
+    const form = document.getElementById("upload-form");
+    const message = document.getElementById("message");
+    const preview = document.getElementById("preview");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (form.elements.password.value !== form.elements.confirm_password.value) {
+        message.textContent = "Passwords do not match";
+        return;
+      }
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      if (!response.ok) {
+        message.textContent = "Registration failed: " + response.status;
+        return;
+      }
+
+      const data = await response.json();
+      message.textContent = "";
+      preview.src = data.url;
+    });
+  </script>
+</body>
+</html>

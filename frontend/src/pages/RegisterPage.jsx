@@ -24,7 +24,9 @@ export default function RegisterPage() {
       setNotice(
          'Account created successfully. Log in with your email and password.'
         );
+
       navigate('/login');
+      
     } catch (error) {
       setError(error.message);
     } finally {

@@ -12,7 +12,8 @@ from sqlmodel import Session, select
 from .config import settings
 from .database import get_session
 from .models import Token, User, UserCreate, UserRead
-
+from io import BytesIO
+from PIL import Image
 
 router = APIRouter(
     prefix="/auth",
@@ -27,7 +28,8 @@ password_hash = PasswordHash.recommended()
 
 SECRET_KEY = settings.secret_key.get_secret_value()
 ALGORITHM = settings.algorithm
-
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+ALLOWED_FORMATS = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp"}
 
 
 
@@ -144,13 +146,28 @@ def register_user(
     
     if profile_image is not None and profile_image.filename:
         
-        suffix=Path(profile_image.filename).suffix.lower() # type: ignore
+        contents =profile_image.file.read()
+        
+        if len(contents)>MAX_IMAGE_BYTES:
+            raise HTTPException(status_code=403,detail="Image must be 5MB or smaller")
+        
+        try:
+            image = Image.open(BytesIO(contents))
+            image_format = image.format
+            image.verify()
+        except Exception:
+            raise HTTPException(status_code=400,detail="File is not a valid image")
+        
+        if image_format not in ALLOWED_FORMATS:
+            raise HTTPException(status_code=400,detail="Only JPG, PNG or WebP images are allowed")
+        
+        suffix= ALLOWED_FORMATS[image_format] # type: ignore
         
         image_file=f"{uuid4().hex}{suffix}"
         
         upload_path=settings.upload_dir/image_file
         
-        contents =profile_image.file.read()
+        
         
         with upload_path.open("wb") as destination:
             destination.write(contents)

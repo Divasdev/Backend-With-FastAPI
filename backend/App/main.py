@@ -10,8 +10,8 @@ from .config import settings
 from .database import create_db_and_tables, get_session
 from .models import User, UserRead
 from .routers import posts
-
-
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Runs once when the server starts.
@@ -20,6 +20,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(settings.upload_dir)),
+    name="uploads",
+    
+)
+
 
 
 app.add_middleware(

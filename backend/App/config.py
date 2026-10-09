@@ -16,5 +16,10 @@ class Settings(BaseSettings):
    access_token_expire_minutes:int=30
    database_url:str=f"sqlite:///{APP_DIR / 'database.db'}"
    cors_origins:list[str]=["http://localhost:5173"]
+   
+
+   upload_dir:Path=APP_DIR/"uploads"
+
+   upload_dir.mkdir(exist_ok=True)
 
 settings=Settings() #type: ignore[call-arg] #Loaded from .env  file

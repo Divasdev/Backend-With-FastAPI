@@ -2,11 +2,13 @@ from sqlmodel import SQLModel,Field
 from pydantic import BaseModel, field_validator
 
 from datetime import datetime,timezone
- 
+
+
 
 class User(SQLModel,table=True):
     id:int|None=Field(default=None,primary_key=True)
     email:str|None=Field(unique=True,index=True)
+    image_file:str |None=None
     hashed_password:str
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     
@@ -18,6 +20,7 @@ class UserCreate(SQLModel):
 class UserRead(SQLModel):
     id:int
     email:str
+    profile_image_url:str|None=None
     created_at:datetime
 
     

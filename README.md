@@ -76,3 +76,4 @@ still enforces ownership. A 401 from an authenticated request clears the session
 4. Share a snippet, edit it, then delete it.
 5. Log out: account controls disappear; opening `/create` sends you to login.
 6. Try an incorrect password or duplicate email: an error should be visible.
+

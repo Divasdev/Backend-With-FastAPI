@@ -8,11 +8,16 @@ from datetime import datetime,timezone
 class User(SQLModel,table=True):
     id:int|None=Field(default=None,primary_key=True)
     email:str|None=Field(unique=True,index=True)
-    image_file:str |None=None
+    image_file:str|None=None
     hashed_password:str
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
+    @property
+    def profile_image_url(self):
+        if self.image_file:
+            return f"/uploads/{self.image_file}"
+        return None 
     
-    
+        
 class UserCreate(SQLModel):
     email:str
     password:str=Field(min_length=8)

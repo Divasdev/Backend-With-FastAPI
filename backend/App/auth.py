@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Annotated
+from uuid import uuid4
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, status,UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlmodel import Session, select
-
 from .config import settings
 from .database import get_session
 from .models import Token, User, UserCreate, UserRead
@@ -121,11 +122,14 @@ def login(
     status_code=status.HTTP_201_CREATED,
 )
 def register_user(
-    user_in: UserCreate,
+
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form(min_length=8)],
+    profile_image: Annotated[UploadFile | None, File()] = None,
     session: Session = Depends(get_session),
 ):
 
-    email = user_in.email.lower()
+    email = email.lower()
 
     existing = session.exec(
         select(User).where(User.email == email)
@@ -136,12 +140,28 @@ def register_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
-
+    image_file=None
+    
+    if profile_image is not None and profile_image.filename:
+        
+        suffix=Path(profile_image.filename).suffix.lower() # type: ignore
+        
+        image_file=f"{uuid4().hex}{suffix}"
+        
+        upload_path=settings.upload_dir/image_file
+        
+        contents =profile_image.file.read()
+        
+        with upload_path.open("wb") as destination:
+            destination.write(contents)
+            
+    
     user = User(
         email=email,
         hashed_password=hash_password(
-            user_in.password
-        ),
+            password
+        ), 
+        image_file=image_file,
     )
 
     session.add(user)

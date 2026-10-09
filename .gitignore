@@ -51,3 +51,6 @@ venv.bak/
 
 # SQLite databases (recreated by create_all on startup)
 *.db
+
+# Uploaded images (saved by the app while it runs)
+uploads/

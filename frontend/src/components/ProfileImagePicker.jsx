@@ -62,7 +62,7 @@ export default function ProfileImagePicker({ file, onChange, email, disabled }) 
         <span>{file.name}</span>
         <button type="button" className="text-button" disabled={disabled} onClick={removeImage}>Remove photo</button>
       </div>}
-      <p id="profile-image-preview-note" className="profile-image-note">Preview only for now. Your photo won’t be saved with your account yet.</p>
+      
       {error && <p id="profile-image-error" className="notice error" role="alert">{error}</p>}
     </div>
   );

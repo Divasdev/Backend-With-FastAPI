@@ -7,7 +7,7 @@ import { useAuth } from '../auth/AuthContext';
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setNotice } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '',profileImage:'' });
   const [profileImage, setProfileImage] = useState(null);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,9 +21,9 @@ export default function RegisterPage() {
     try {
       await registerAccount({ ...form, profileImage });
 
-      setNotice(profileImage
-        ? 'Account created successfully. Your photo was previewed but not saved. Log in with your email and password.'
-        : 'Account created successfully. Log in with your email and password.');
+      setNotice(
+         'Account created successfully. Log in with your email and password.'
+        );
       navigate('/login');
     } catch (error) {
       setError(error.message);

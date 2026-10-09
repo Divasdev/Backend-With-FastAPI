@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI,Form,File,UploadFile
+from fastapi import FastAPI,Form,File,UploadFile,HTTPException
 from pathlib import Path 
 from fastapi.responses import FileResponse
 from pwdlib import PasswordHash
@@ -16,8 +16,7 @@ UPLOAD_DIR=BASE_DIR/"uploads"
 
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-print("Project directory:", BASE_DIR)
-print("Uploads directory:", UPLOAD_DIR)
+
 
 app.mount(
     "/uploads",
@@ -32,10 +31,12 @@ class FormData(BaseModel):
     username:str 
     email:str
     password:str 
+    file:UploadFile
     
 class FormReturn(BaseModel):
     username:str
     email:str
+    url:str
     
 
 @app.get("/")
@@ -44,16 +45,34 @@ def home():
     return FileResponse(BASE_DIR/"index.html")
 
 
-@app.post("/register/")
-async def register(data:Annotated[FormData,Form()],file:Annotated[UploadFile,File()]):
     
-    hashed_password = password_hash.hash(data.password)
+@app.post("/register/",response_model=FormReturn)
+async def register(
+    username: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()],
+):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400,detail="only images are allowed,Bad Request")
     
-    print("uploaded filename:",file.filename)
-    return{"username":data.username,
-       "email":data.email,
-       "filename":file.filename,
-       "content-type":file.content_type
+    
+    hashed_password = password_hash.hash(password)
+    
+    
+    extension=Path(file.filename).suffix
+    new_name=f"{uuid4().hex}{extension}"
+    save_path=UPLOAD_DIR/new_name
+    
+    contents=await file.read()
+    
+    with open(save_path,'wb') as f:
+        f.write(contents)
+       
+    
+    return{"username":username,
+       "email":email,
+       "url":f"/uploads/{new_name}"
        }
     
     

@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from pathlib import Path
-
+from typing import Annotated
+from fastapi import FastAPI,Form
+from pathlib import Path 
 from fastapi.responses import FileResponse
 
 
@@ -12,6 +12,17 @@ BASE_DIR=Path(__file__).resolve().parent
 def home():
     return FileResponse(BASE_DIR/"index.html")
 
-
-
-
+@app.post("/register/")
+async def register(
+    username:Annotated[str,Form()],email:Annotated[str,Form()],password:Annotated[str,Form()]
+):
+    
+    
+    
+    return {
+        "username":username,
+        "email":email
+          }
+    
+    
+    

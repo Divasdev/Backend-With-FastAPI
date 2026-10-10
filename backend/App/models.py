@@ -81,3 +81,8 @@ class SnipUpdate(SQLModel):
             raise ValueError("Must not be blank")
         return value
 
+class Vote(SQLModel,table=True):
+    user_id:int=Field(foreign_key="user.id",primary_key=True)
+    snip_id:int=Field(foreign_key="snip.id",primary_key=True)
+    value:int
+    

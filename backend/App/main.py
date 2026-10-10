@@ -8,7 +8,7 @@ from starlette.middleware.cors import CORSMiddleware
 from .auth import get_current_user, router as auth_router
 from .config import settings
 from .database import create_db_and_tables, get_session
-from .models import User, UserRead
+from .models import User, UserRead,Vote
 from .routers import posts
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path

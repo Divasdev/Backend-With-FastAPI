@@ -59,7 +59,7 @@ def create_access_token(
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-
+ 
     to_encode.update({"exp": expire})
 
     encoded_jwt = jwt.encode(
@@ -149,7 +149,7 @@ def register_user(
         contents =profile_image.file.read()
         
         if len(contents)>MAX_IMAGE_BYTES:
-            raise HTTPException(status_code=403,detail="Image must be 5MB or smaller")
+            raise HTTPException(status_code=413,detail="Image must be 5MB or smaller")
         
         try:
             image = Image.open(BytesIO(contents))

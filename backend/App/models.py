@@ -80,3 +80,4 @@ class SnipUpdate(SQLModel):
         if info.field_name != "description" and not value.strip():
             raise ValueError("Must not be blank")
         return value
+

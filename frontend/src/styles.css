@@ -77,6 +77,8 @@ textarea { resize: vertical; min-height: 95px; }
 .vote-stack { display: flex; align-items: center; flex-direction: column; gap: 3px; padding-top: 1px; }
 .vote-stack button { border: 0; background: transparent; color: #9a9c93; padding: 1px 8px; font-size: 12px; transition: color .15s ease, transform .12s ease; }
 .vote-stack button:hover { color: #355e55; transform: scale(1.15); }
+.vote-stack button.active { color: #355e55; }
+.vote-stack button:disabled { cursor: default; color: #9a9c93; transform: none; }
 .vote-stack strong { color: #3b4037; font: 500 13px 'DM Mono', monospace; }
 .post-card-meta { display: flex; align-items: center; gap: 9px; color: #888a81; font-size: 12px; }
 .language-pill { display: inline-block; padding: 3px 7px; color: #326256; background: #e5f0eb; border-radius: 4px; font: 500 11px 'DM Mono', monospace; transition: background .15s ease; }

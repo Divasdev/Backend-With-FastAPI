@@ -11,6 +11,36 @@ export default function FeedPage() {
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState(null);
   const [language, setLanguage] = useState('All languages');
+  // My votes as { snippetId: 1 or -1 }, so each card knows which arrow to highlight.
+  const [myVotes, setMyVotes] = useState({});
+  const [voteError, setVoteError] = useState(null);
+
+  useEffect(() => {
+    if (!user) {
+      setMyVotes({});
+      return;
+    }
+    apiFetch('/users/me/votes')
+      .then((res) => res.json())
+      .then((data) => setMyVotes(Object.fromEntries(data.map((vote) => [vote.snip_id, vote.value]))))
+      .catch((err) => setVoteError(err.message));
+  }, [user]);
+
+  function handleVote(snipId, value) {
+    // Clicking the arrow I already chose removes my vote; anything else sets it.
+    const remove = myVotes[snipId] === value;
+    const options = remove
+      ? { method: 'DELETE' }
+      : { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ value }) };
+    setVoteError(null);
+    apiFetch(`/api/snippets/${snipId}/vote`, options)
+      .then((res) => res.json())
+      .then((updated) => {
+        setSnippets((list) => list.map((post) => (post.id === updated.id ? updated : post)));
+        setMyVotes((votes) => ({ ...votes, [snipId]: remove ? undefined : value }));
+      })
+      .catch((err) => setVoteError(err.message));
+  }
 
   useEffect(()=>{
     apiFetch('/api/snippets/')
@@ -71,8 +101,9 @@ export default function FeedPage() {
         <Link className="button" to={user ? "/create" : "/register"}>{user ? "Share a snippet" : "Join the community"}</Link>
       </div>}
       {snippets.length > 0 && visiblePosts.length === 0 && <div className="empty-state"><h2>No snippets in this language yet.</h2><p>Try another filter.</p></div>}
+      {voteError && <p className="notice error" role="alert">{voteError}</p>}
       <div className="post-list">
-        {visiblePosts.map((post) => <PostCard key={post.id} post={post} />)}
+        {visiblePosts.map((post) => <PostCard key={post.id} post={post} myVote={myVotes[post.id]} onVote={handleVote} />)}
       </div>
     </div>
   );

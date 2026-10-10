@@ -1,3 +1,4 @@
+from typing import Literal
 from sqlmodel import SQLModel,Field
 from pydantic import BaseModel, field_validator
 
@@ -85,4 +86,8 @@ class Vote(SQLModel,table=True):
     user_id:int=Field(foreign_key="user.id",primary_key=True)
     snip_id:int=Field(foreign_key="snip.id",primary_key=True)
     value:int
+    
+class VoteIn(SQLModel):
+    value:Literal[1,-1]
+    
     

@@ -3,11 +3,11 @@ from typing import Annotated
 from datetime import datetime,timezone
 from ..auth import get_current_user
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select,func
 
 from ..database import SessionDep, get_session
 
-from ..models import User,Snip,SnipCreate,SnipPublic,SnipUpdate
+from ..models import User,Snip,SnipCreate,SnipPublic,SnipUpdate,VoteIn,Vote
 
 
 router = APIRouter(
@@ -108,4 +108,83 @@ def delete_snippet(
    session.delete(snip)
    session.commit()
 
+
+@router.put("/{id}/vote",response_model=SnipPublic)
+def set_vote(
+   id:int,
+   vote_in:VoteIn,
+   current_user:Annotated[User,Depends(get_current_user)],
+   session: Session = Depends(get_session),
+   ):
+   snip_db=session.get(Snip,id)
+   
+   if not snip_db:
+      raise HTTPException(status_code=404,detail="Snippet not found")
+   
+   
+   vote=session.get(Vote,(current_user.id,id))
+   
+   
+   if vote is None:
+      vote=Vote(
+         user_id=current_user.id, # type: ignore
+         snip_id=id,
+         value=vote_in.value,
+      )
+      
+      session.add(vote)
+      
+   else:
+      vote.value=vote_in.value
+      
+      
+   total=session.exec(
+      select(func.sum(Vote.value))
+      .where(Vote.snip_id==id)
+   ).one()
+   
+   snip_db.vote_count=total or 0 
+   
+   session.add( snip_db)
+   session.commit()
+   session.refresh( snip_db)
+   
+   
+   return snip_db
+   
+   
+@router.delete("/{id}/vote",response_model=SnipPublic)
+def  delete_vote(
+   id:int,
+   current_user:Annotated[User,Depends(get_current_user)],
+   session: Session = Depends(get_session),
+):
+   
+   snippet=session.get(Snip,id)
+   
+   if snippet is None:
+      raise HTTPException(status_code=404,detail="Snippets not found")
+   
+   
+   vote=session.get(Vote,(current_user.id,id))
+   
+   if vote:
+    session.delete(vote)
+   
+      
+   total=session.exec(
+      select(func.sum(Vote.value))
+      .where(Vote.snip_id==id)
+   ).one()
+      
+   snippet.vote_count=total or 0 
+   
+   session.add(snippet)
+   session.commit()
+   session.refresh(snippet)
+   
+   return snippet
+      
+      
+   
 

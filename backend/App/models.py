@@ -91,3 +91,9 @@ class VoteIn(SQLModel):
     value:Literal[1,-1]
     
     
+class VoteRead(SQLModel):
+    snip_id:int
+    value:int 
+    
+    
+    

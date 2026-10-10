@@ -2,13 +2,13 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI
-from sqlmodel import Session
+from sqlmodel import Session,select
 from starlette.middleware.cors import CORSMiddleware
 
 from .auth import get_current_user, router as auth_router
 from .config import settings
 from .database import create_db_and_tables, get_session
-from .models import User, UserRead,Vote
+from .models import User, UserRead,Vote,VoteRead
 from .routers import posts
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -55,3 +55,16 @@ def read_me(
     ],
 ):
     return current_user
+
+@app.get("/users/me/votes", response_model=list[VoteRead])
+def read_votes(
+     current_user: Annotated[
+        User,
+        Depends(get_current_user)
+    ],
+     session: Session = Depends(get_session),
+ ):
+    
+    my_votes=session.exec(select(Vote).where(Vote.user_id==current_user.id)).all() 
+    
+    return my_votes

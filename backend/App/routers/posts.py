@@ -184,6 +184,9 @@ def  delete_vote(
    session.refresh(snippet)
    
    return snippet
+
+
+
       
       
    

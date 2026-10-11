@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import Avatar from './Avatar';
 
 function formatDate(value) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value));
@@ -15,7 +16,11 @@ export default function PostCard({ post, myVote, onVote }) {
         <button type="button" className={myVote === -1 ? 'active' : ''} onClick={() => onVote(post.id, -1)} disabled={!user} aria-label="Downvote" aria-pressed={myVote === -1}>▼</button>
       </div>
       <div className="post-card-main">
-        <div className="post-card-meta"><span className="language-pill">{post.language}</span><span>{formatDate(post.created_at)}</span>{user?.id === post.owner_id && <span className="owner-pill">Your snippet</span>}</div>
+        <div className="post-card-meta">
+          {/* The backend sends author as { id, name, profile_image_url }. Nothing shows until it does. */}
+          {post.author && <span className="post-author"><Avatar src={post.author.profile_image_url} email={post.author.name} small />{post.author.name}</span>}
+          <span className="language-pill">{post.language}</span><span>{formatDate(post.created_at)}</span>{user?.id === post.owner_id && <span className="owner-pill">Your snippet</span>}
+        </div>
         <h2><Link to={`/posts/${post.id}`}>{post.title}</Link></h2>
         {post.description && <p>{post.description}</p>}
         <pre><code>{post.code}</code></pre>

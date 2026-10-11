@@ -2,12 +2,12 @@ import { useState } from 'react';
 
 // Expected account field: profile_image_url, an absolute/public image URL or null.
 // The current backend can omit it; the initials remain visible instead.
-export default function Avatar({ src, email = '', large = false }) {
+export default function Avatar({ src, email = '', large = false, small = false }) {
   const [failedSrc, setFailedSrc] = useState(null);
   const initials = email.trim().slice(0, 2).toUpperCase() || '?';
 
   return (
-    <span className={`avatar${large ? ' avatar-large' : ''}`}>
+    <span className={`avatar${large ? ' avatar-large' : ''}${small ? ' avatar-small' : ''}`}>
       {src && failedSrc !== src ? (
         <img src={src} alt="Profile photo" onError={() => setFailedSrc(src)} />
       ) : (

@@ -2,6 +2,7 @@ import { useAuth } from '../auth/AuthContext';
 import { apiFetch } from '../api/api';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate} from 'react-router-dom';
+import Avatar from '../components/Avatar';
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
@@ -74,6 +75,12 @@ export default function PostPage() {
       <div className="detail-header">
         <div>
           <div className="post-card-meta">
+            {post.author && (
+              <span className="post-author">
+                <Avatar src={post.author.profile_image_url} email={post.author.name} small />
+                {post.author.name}
+              </span>
+            )}
             <span className="language-pill">{post.language}</span>
             <span>Shared {formatDate(post.created_at)}</span>
             {user?.id === post.owner_id && <span className="owner-pill">Your snippet</span>}

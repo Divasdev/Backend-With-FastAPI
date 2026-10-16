@@ -77,8 +77,8 @@ export default function PostPage() {
           <div className="post-card-meta">
             {post.author && (
               <span className="post-author">
-                <Avatar src={post.author.profile_image_url} email={post.author.name} small />
-                {post.author.name}
+                <Avatar src={post.author.profile_image_url} email={post.author.email} small />
+                {post.author.email}
               </span>
             )}
             <span className="language-pill">{post.language}</span>

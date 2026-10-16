@@ -59,14 +59,23 @@ class Snip(SnipBase,table=True):
    # Deleting a snippet also deletes its votes.
    votes: list["Vote"] = Relationship(cascade_delete=True)
    
+   author:User| None=Relationship()
+   
 class SnipCreate(SnipBase):
    pass 
+
+class AuthorPublic(SQLModel):
+    id:int
+    email:str
+    profile_image_url:str|None=Field(default=None)
+    
 
 class SnipPublic(SnipBase):
     id: int
     owner_id:int
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     vote_count: int = Field(default=0) 
+    author:AuthorPublic|None=Field(default=None)
 
 class SnipUpdate(SQLModel):
     title: str | None = None

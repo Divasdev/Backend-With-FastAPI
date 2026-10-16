@@ -17,8 +17,8 @@ export default function PostCard({ post, myVote, onVote }) {
       </div>
       <div className="post-card-main">
         <div className="post-card-meta">
-          {/* The backend sends author as { id, name, profile_image_url }. Nothing shows until it does. */}
-          {post.author && <span className="post-author"><Avatar src={post.author.profile_image_url} email={post.author.name} small />{post.author.name}</span>}
+          {/* The backend sends author as { id, email, profile_image_url } */}
+          {post.author && <span className="post-author"><Avatar src={post.author.profile_image_url} email={post.author.email} small />{post.author.email}</span>}
           <span className="language-pill">{post.language}</span><span>{formatDate(post.created_at)}</span>{user?.id === post.owner_id && <span className="owner-pill">Your snippet</span>}
         </div>
         <h2><Link to={`/posts/${post.id}`}>{post.title}</Link></h2>

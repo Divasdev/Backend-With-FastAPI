@@ -42,8 +42,14 @@ def read_snippets(
    owner_id:int|None=None,
    ):
    
+   statement=select(Snip)
+   
+   if owner_id is  not None:
+      statement=statement.where(Snip.owner_id==owner_id)
+      
+      
    snipps=session.exec(
-      select(Snip)
+      statement
       .order_by(Snip.id.desc()) # type: ignore
       .offset(offset)
       .limit(limit) 

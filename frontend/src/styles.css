@@ -81,7 +81,8 @@ textarea { resize: vertical; min-height: 95px; }
 .vote-stack button:disabled { cursor: default; color: #9a9c93; transform: none; }
 .vote-stack strong { color: #3b4037; font: 500 13px 'DM Mono', monospace; }
 .post-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; color: #888a81; font-size: 12px; }
-.post-author { display: inline-flex; align-items: center; gap: 6px; color: #454a41; font-weight: 600; }
+.post-author { display: inline-flex; align-items: center; gap: 6px; color: #454a41; font-weight: 600; text-decoration: none; transition: color .15s ease; }
+.post-author:hover { color: #355e55; }
 .language-pill { display: inline-block; padding: 3px 7px; color: #326256; background: #e5f0eb; border-radius: 4px; font: 500 11px 'DM Mono', monospace; transition: background .15s ease; }
 .post-card:hover .language-pill { background: #d8ebe3; }
 .owner-pill { padding: 2px 7px; color: #466a60; border: 1px solid #c5d1cb; border-radius: 4px; font-size: 11px; font-weight: 600; }
@@ -142,6 +143,12 @@ pre { margin: 0; overflow: auto; }
 .detail-header h1 { margin: 10px 0 12px; font: 700 clamp(34px, 5vw, 48px)/1.08 'Playfair Display', Georgia, serif; letter-spacing: -1.5px; }
 .detail-header p { max-width: 650px; color: #666a60; line-height: 1.6; }
 .owner-actions { display: flex; flex-shrink: 0; gap: 9px; }
+
+/* ── Profile Page ────────────────────────────────────────── */
+.profile-header { display: flex; align-items: center; gap: 16px; margin: 28px 0 23px; min-width: 0; }
+.profile-header > div { min-width: 0; }
+.profile-header h1 { margin: 0 0 6px; font: 700 clamp(24px, 4vw, 32px)/1.15 'Playfair Display', Georgia, serif; letter-spacing: -.8px; overflow-wrap: anywhere; }
+.profile-header p { margin: 0; color: #85877e; font-size: 13px; }
 .secondary-button { color: #466a60; border: 1px solid #aabcb4; background: #fffefa; padding: 9px 13px; transition: background .16s ease, border-color .16s ease; }
 .secondary-button:hover { background: #eff5f1; border-color: #8caaa0; }
 .danger-button { padding: 9px 13px; background: #fff0ed; color: #a2473e; border: 1px solid #e7beb8; transition: background .16s ease; }

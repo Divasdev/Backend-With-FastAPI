@@ -76,10 +76,10 @@ export default function PostPage() {
         <div>
           <div className="post-card-meta">
             {post.author && (
-              <span className="post-author">
+              <Link className="post-author" to={`/profile/${post.author.id}`}>
                 <Avatar src={post.author.profile_image_url} email={post.author.email} small />
                 {post.author.email}
-              </span>
+              </Link>
             )}
             <span className="language-pill">{post.language}</span>
             <span>Shared {formatDate(post.created_at)}</span>

@@ -7,12 +7,15 @@ import PostPage from './pages/PostPage';
 import RegisterPage from './pages/RegisterPage';
 import CreatePage from './pages/CreatePage';
 import EditPage from './pages/EditPage';
+import ProfilePage from './pages/ProfilePage';
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<FeedPage />} />
         <Route path="/posts/:id" element={<PostPage />} />
+        {/* Not /users/:id: Vite sends /users to the backend, so a refresh would show JSON. */}
+        <Route path="/profile/:userId" element={<ProfilePage />} />
         <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
         <Route path="/register" element={<GuestOnly><RegisterPage /></GuestOnly>} />
         <Route path="*" element={<Navigate to="/" replace />} />

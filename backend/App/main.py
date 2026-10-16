@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Session,select
 from starlette.middleware.cors import CORSMiddleware
 
@@ -68,3 +68,15 @@ def read_votes(
     my_votes=session.exec(select(Vote).where(Vote.user_id==current_user.id)).all() 
     
     return my_votes
+@app.get('/users/{user_id}',response_model=UserRead)
+def get_user(
+    user_id:int,
+    
+    session:Session=Depends(get_session),
+):
+    user=session.get(User,user_id)
+    
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user 

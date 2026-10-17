@@ -5,7 +5,7 @@ Tick a box when it is done: change `[ ]` to `[x]`.
 ## Features
 
 - [x] 1. Author on each snippet. The API only returns `owner_id`, so return the author's email and photo with each snippet and show them on the card.
-- [ ] 2. Profile page. One page that shows a user and all their snippets.
+- [x] 2. Profile page. One page that shows a user and all their snippets.
 - [ ] 3. Search, filter and sort on the server. Add `?q=`, `?language=` and `?sort=new|top` to `GET /api/snippets/`.
 - [ ] 4. Pagination. Lower the default `limit` from 100 to about 10, return the total count, add a "Load more" button.
 - [ ] 5. Votes on the detail page. They only show on the feed right now.

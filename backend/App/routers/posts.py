@@ -3,7 +3,7 @@ from typing import Annotated
 from datetime import datetime,timezone
 from ..auth import get_current_user
 
-from sqlmodel import Session, select,func
+from sqlmodel import Session, col, or_, select,func
 
 from ..database import SessionDep, get_session
 
@@ -40,12 +40,23 @@ def read_snippets(
    offset:Annotated[int,Query(ge=0)]=0,
    limit:Annotated[int,Query(ge=1,le=100)]=100,
    owner_id:int|None=None,
+   language:str|None=None,
+   q:str|None=None,
    ):
    
    statement=select(Snip)
    
    if owner_id is  not None:
       statement=statement.where(Snip.owner_id==owner_id)
+   if language:
+      statement=statement.where(Snip.language==language)
+   if q:
+      statement=statement.where(
+         or_(
+            col(Snip.title).ilike(f"%{q}%"),
+            col(Snip.description).ilike(f"%{q}%")
+            )
+         )
       
       
    snipps=session.exec(

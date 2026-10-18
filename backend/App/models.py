@@ -76,6 +76,10 @@ class SnipPublic(SnipBase):
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     vote_count: int = Field(default=0) 
     author:AuthorPublic|None=Field(default=None)
+    
+class SnipList(SQLModel):
+    items:list[SnipPublic]
+    total:int
 
 class SnipUpdate(SQLModel):
     title: str | None = None

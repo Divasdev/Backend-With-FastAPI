@@ -74,6 +74,7 @@ textarea { resize: vertical; min-height: 95px; }
 
 /* ── Post List / Cards ───────────────────────────────────── */
 .post-list { display: grid; gap: 12px; }
+.pagination-actions { display: flex; justify-content: center; align-items: center; gap: 13px; margin-top: 22px; color: #85877e; font-size: 13px; }
 .post-card { display: grid; grid-template-columns: 58px 1fr; padding: 21px 23px 20px 14px; background: #fffefa; border: 1px solid #e2e1d8; border-radius: 8px; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
 .post-card-main { min-width: 0; }
 .post-card:hover { border-color: #c5d1cb; box-shadow: 0 6px 20px rgba(42, 62, 52, .06); transform: translateY(-1px); }
@@ -183,6 +184,7 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
   .hero-button { margin: 0; }
   .feed-toolbar { align-items: start; gap: 16px; flex-direction: column; }
   .feed-filters { width: 100%; align-items: end; flex-wrap: wrap; }
+  .pagination-actions { flex-direction: column; }
   .search-control { flex: 1 0 100%; }
   .search-control input { width: 100%; }
   .filter-control { align-items: flex-start; flex-direction: column; gap: 5px; }

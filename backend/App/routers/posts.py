@@ -1,11 +1,10 @@
 from fastapi import APIRouter,HTTPException, Query,Depends,status
-from fastapi_pagination import Page, add_pagination,paginate
 from typing import Annotated
 from datetime import datetime,timezone
 from ..auth import get_current_user
 from sqlmodel import Session, col, or_, select,func
 from ..database import SessionDep, get_session
-from ..models import User,Snip,SnipCreate,SnipPublic,SnipUpdate,VoteIn,Vote
+from ..models import User,Snip,SnipCreate,SnipPublic,SnipUpdate,VoteIn,Vote,SnipList
 
 
 router = APIRouter(
@@ -32,11 +31,11 @@ def create_snip(
 
 
 
-@router.get("/",response_model=Page[SnipPublic])
+@router.get("/",response_model=SnipList)
 def read_snippets(
    session:SessionDep,
    offset:Annotated[int,Query(ge=0)]=0,
-   limit:Annotated[int,Query(ge=1,le=100)]=100,
+   limit:Annotated[int,Query(ge=1,le=100)]=10,
    owner_id:int|None=None,
    language:str|None=None,
    q:str|None=None,
@@ -58,6 +57,10 @@ def read_snippets(
          )
       
       
+   count_statement=select(func.count()).select_from(statement.subquery())
+   total=session.exec(count_statement).one()
+      
+      
    snipps = session.exec(
     statement
     .order_by(
@@ -68,7 +71,7 @@ def read_snippets(
     .limit(limit)
    ).all()
    
-   return snipps
+   return {"items":snipps,"total":total}
 
 @router.get("/{id}",response_model=SnipPublic)
 def read_snippet(

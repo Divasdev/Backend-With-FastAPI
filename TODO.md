@@ -4,10 +4,10 @@ Tick a box when it is done: change `[ ]` to `[x]`.
 
 ## Features
 
-- [x] 1. Author on each snippet. The API only returns `owner_id`, so return the author's email and photo with each snippet and show them on the card.
+- [x] 1. Author on each snippet. Return the author's email and photo with each snippet and show them on the card.
 - [x] 2. Profile page. One page that shows a user and all their snippets.
-- [ ] 3. Search, filter and sort on the server. Add `?q=`, `?language=` and `?sort=new|top` to `GET /api/snippets/`.
-- [ ] 4. Pagination. Lower the default `limit` from 100 to about 10, return the total count, add a "Load more" button.
+- [x] 3. Search, filter and sort on the server and feed. Support `?q=`, `?language=` and `?sort=new|top` on `GET /api/snippets/` and provide matching feed controls.
+- [x] 4. Pagination. Return 10 snippets by default with a total count, and load additional results with a "Load more" button.
 - [ ] 5. Votes on the detail page. They only show on the feed right now.
 
 ## Make it solid
@@ -32,4 +32,4 @@ Comments, follows, email or password reset, WebSockets, Redis.
 
 ## Done so far
 
-Register and login with JWT, profile photo upload, snippet create/read/edit/delete with ownership checks, voting, settings from `.env`, React frontend connected.
+Register and login with JWT; profile photo upload; snippet create/read/edit/delete with ownership checks; voting; author details on snippet cards; user profile pages with their snippets; server-backed feed search, language filtering, newest/top sorting, and pagination; settings from `.env`; React frontend connected.

@@ -9,7 +9,10 @@ export default function FeedPage() {
   const { user } = useAuth();
   const[snippets,setSnippets]=useState([]);
   const[loading,setLoading]=useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const[error,setError]=useState(null);
+  const [loadMoreError, setLoadMoreError] = useState(null);
+  const [total, setTotal] = useState(0);
   const [languages, setLanguages] = useState([]);
   const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
@@ -48,7 +51,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     let active = true;
-    const params = new URLSearchParams({ sort });
+    const params = new URLSearchParams({ sort, offset: '0', limit: '10' });
     if (search) params.set('q', search);
     if (language) params.set('language', language);
 
@@ -58,8 +61,9 @@ export default function FeedPage() {
       .then((res) => res.json())
       .then((data) => {
         if (!active) return;
-        setSnippets(data);
-        setLanguages((current) => [...new Set([...current, ...data.map((post) => post.language)])].sort());
+        setSnippets(data.items);
+        setTotal(data.total);
+        setLanguages((current) => [...new Set([...current, ...data.items.map((post) => post.language)])].sort());
         setLoading(false);
       })
       .catch((err) => {
@@ -76,6 +80,24 @@ export default function FeedPage() {
   function handleSearch(event) {
     event.preventDefault();
     setSearch(searchDraft.trim());
+  }
+
+  function loadMore() {
+    const params = new URLSearchParams({ sort, offset: String(snippets.length), limit: '10' });
+    if (search) params.set('q', search);
+    if (language) params.set('language', language);
+
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    apiFetch(`/api/snippets/?${params}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSnippets((current) => [...current, ...data.items]);
+        setTotal(data.total);
+        setLanguages((current) => [...new Set([...current, ...data.items.map((post) => post.language)])].sort());
+      })
+      .catch((err) => setLoadMoreError(err.message))
+      .finally(() => setLoadingMore(false));
   }
 
   if (loading) return <p className="page-loader" role="status">Loading snippets...</p>;
@@ -129,6 +151,13 @@ export default function FeedPage() {
       <div className="post-list">
         {snippets.map((post) => <PostCard key={post.id} post={post} myVote={myVotes[post.id]} onVote={handleVote} />)}
       </div>
+      {loadMoreError && <p className="notice error" role="alert">{loadMoreError}</p>}
+      {snippets.length < total && <div className="pagination-actions">
+        <button type="button" className="secondary-button" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? 'Loading…' : 'Load more'}
+        </button>
+        <span>Showing {snippets.length} of {total} snippets</span>
+      </div>}
     </div>
   );
 }

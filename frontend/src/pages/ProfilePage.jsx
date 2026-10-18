@@ -14,8 +14,11 @@ export default function ProfilePage() {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [snippets, setSnippets] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [loadMoreError, setLoadMoreError] = useState(null);
   // Same vote handling as the feed: { snippetId: 1 or -1 }.
   const [myVotes, setMyVotes] = useState({});
   const [voteError, setVoteError] = useState(null);
@@ -24,11 +27,12 @@ export default function ProfilePage() {
     // Load the user and their snippets together.
     Promise.all([
       apiFetch(`/users/${userId}`).then((res) => res.json()),
-      apiFetch(`/api/snippets/?owner_id=${userId}`).then((res) => res.json()),
+      apiFetch(`/api/snippets/?owner_id=${userId}&offset=0&limit=10`).then((res) => res.json()),
     ])
       .then(([profileData, snippetData]) => {
         setProfile(profileData);
-        setSnippets(snippetData);
+        setSnippets(snippetData.items);
+        setTotal(snippetData.total);
         setLoading(false);
       })
       .catch((err) => {
@@ -64,6 +68,19 @@ export default function ProfilePage() {
       .catch((err) => setVoteError(err.message));
   }
 
+  function loadMore() {
+    setLoadingMore(true);
+    setLoadMoreError(null);
+    apiFetch(`/api/snippets/?owner_id=${userId}&offset=${snippets.length}&limit=10`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSnippets((current) => [...current, ...data.items]);
+        setTotal(data.total);
+      })
+      .catch((err) => setLoadMoreError(err.message))
+      .finally(() => setLoadingMore(false));
+  }
+
   if (loading) return <p className="page-loader" role="status">Loading profile...</p>;
 
   if (error || !profile) {
@@ -89,7 +106,7 @@ export default function ProfilePage() {
         <div>
           <h1>{profile.email}</h1>
           <p>
-            Joined {formatJoined(profile.created_at)} · {snippets.length} {snippets.length === 1 ? 'snippet' : 'snippets'}
+            Joined {formatJoined(profile.created_at)} · {total} {total === 1 ? 'snippet' : 'snippets'}
           </p>
         </div>
       </section>
@@ -99,6 +116,13 @@ export default function ProfilePage() {
       <div className="post-list">
         {snippets.map((post) => <PostCard key={post.id} post={post} myVote={myVotes[post.id]} onVote={handleVote} />)}
       </div>
+      {loadMoreError && <p className="notice error" role="alert">{loadMoreError}</p>}
+      {snippets.length < total && <div className="pagination-actions">
+        <button type="button" className="secondary-button" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? 'Loading…' : 'Load more'}
+        </button>
+        <span>Showing {snippets.length} of {total} snippets</span>
+      </div>}
     </div>
   );
 }

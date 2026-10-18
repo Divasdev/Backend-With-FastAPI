@@ -1,4 +1,5 @@
 from fastapi import APIRouter,HTTPException, Query,Depends,status
+from fastapi_pagination import Page, add_pagination,paginate
 from typing import Annotated
 from datetime import datetime,timezone
 from ..auth import get_current_user
@@ -31,7 +32,7 @@ def create_snip(
 
 
 
-@router.get("/",response_model=list[SnipPublic])
+@router.get("/",response_model=Page[SnipPublic])
 def read_snippets(
    session:SessionDep,
    offset:Annotated[int,Query(ge=0)]=0,
@@ -67,7 +68,7 @@ def read_snippets(
     .limit(limit)
    ).all()
    
-   return snipps 
+   return snipps
 
 @router.get("/{id}",response_model=SnipPublic)
 def read_snippet(

@@ -2,6 +2,9 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi_pagination import add_pagination
+
+
 from sqlmodel import Session,select
 from starlette.middleware.cors import CORSMiddleware
 
@@ -21,6 +24,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+add_pagination(app)
 app.mount(
     "/uploads",
     StaticFiles(directory=str(settings.upload_dir)),

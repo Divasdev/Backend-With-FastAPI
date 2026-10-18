@@ -2,11 +2,8 @@ from fastapi import APIRouter,HTTPException, Query,Depends,status
 from typing import Annotated
 from datetime import datetime,timezone
 from ..auth import get_current_user
-
 from sqlmodel import Session, col, or_, select,func
-
 from ..database import SessionDep, get_session
-
 from ..models import User,Snip,SnipCreate,SnipPublic,SnipUpdate,VoteIn,Vote
 
 
@@ -42,6 +39,7 @@ def read_snippets(
    owner_id:int|None=None,
    language:str|None=None,
    q:str|None=None,
+   sort:str="new",
    ):
    
    statement=select(Snip)
@@ -59,11 +57,14 @@ def read_snippets(
          )
       
       
-   snipps=session.exec(
-      statement
-      .order_by(Snip.id.desc()) # type: ignore
-      .offset(offset)
-      .limit(limit) 
+   snipps = session.exec(
+    statement
+    .order_by(
+        Snip.vote_count.desc() if sort == "top" else Snip.id.desc(), # type: ignore
+        Snip.id.desc(), # type: ignore
+    )
+    .offset(offset)
+    .limit(limit)
    ).all()
    
    return snipps 

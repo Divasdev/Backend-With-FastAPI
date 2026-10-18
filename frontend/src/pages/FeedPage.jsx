@@ -1,6 +1,6 @@
 import { useAuth } from '../auth/AuthContext';
 import { apiFetch } from '../api/api';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 
@@ -10,7 +10,11 @@ export default function FeedPage() {
   const[snippets,setSnippets]=useState([]);
   const[loading,setLoading]=useState(true);
   const[error,setError]=useState(null);
-  const [language, setLanguage] = useState('All languages');
+  const [languages, setLanguages] = useState([]);
+  const [searchDraft, setSearchDraft] = useState('');
+  const [search, setSearch] = useState('');
+  const [language, setLanguage] = useState('');
+  const [sort, setSort] = useState('new');
   // My votes as { snippetId: 1 or -1 }, so each card knows which arrow to highlight.
   const [myVotes, setMyVotes] = useState({});
   const [voteError, setVoteError] = useState(null);
@@ -42,29 +46,37 @@ export default function FeedPage() {
       .catch((err) => setVoteError(err.message));
   }
 
-  useEffect(()=>{
-    apiFetch('/api/snippets/')
-    .then((res)=>{
-      if (!res.ok) throw new Error("Failed to Fetch Snippets");
-        return res.json();
-      
-    })
-    .then((data)=>{
-      setSnippets(data);
-      setLoading(false);
-    })
-    .catch((err)=>{
-      setError(err.message);
-      setLoading(false);
-    });
-  },[]);
+  useEffect(() => {
+    let active = true;
+    const params = new URLSearchParams({ sort });
+    if (search) params.set('q', search);
+    if (language) params.set('language', language);
 
+    setLoading(true);
+    setError(null);
+    apiFetch(`/api/snippets/?${params}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!active) return;
+        setSnippets(data);
+        setLanguages((current) => [...new Set([...current, ...data.map((post) => post.language)])].sort());
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err.message);
+        setLoading(false);
+      });
 
-  const languages = useMemo(
-    () => ['All languages', ...new Set(snippets.map((post) => post.language).sort())],
-    [snippets],
-  );
-  const visiblePosts = language === 'All languages' ? snippets : snippets.filter((post) => post.language === language);
+    return () => {
+      active = false;
+    };
+  }, [language, search, sort]);
+
+  function handleSearch(event) {
+    event.preventDefault();
+    setSearch(searchDraft.trim());
+  }
 
   if (loading) return <p className="page-loader" role="status">Loading snippets...</p>;
   if (error) {
@@ -89,21 +101,33 @@ export default function FeedPage() {
       </section>
       <section className="feed-toolbar" aria-label="Feed controls">
         <div><h2>Latest snippets</h2><span>Small solutions shared by the community</span></div>
-        {snippets.length > 0 && <label className="filter-control">Filter by language
-          <select value={language} onChange={(event) => setLanguage(event.target.value)}>
-            {languages.map((item) => <option key={item}>{item}</option>)}
-          </select>
-        </label>}
+        <form className="feed-filters" onSubmit={handleSearch}>
+          <label className="search-control">Search snippets
+            <input type="search" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="Title or description" />
+          </label>
+          <label className="filter-control">Filter by language
+            <select value={language} onChange={(event) => setLanguage(event.target.value)}>
+              <option value="">All languages</option>
+              {languages.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+          <label className="filter-control">Sort by
+            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+              <option value="new">Newest</option>
+              <option value="top">Top voted</option>
+            </select>
+          </label>
+          <button className="button small-button" type="submit">Search</button>
+        </form>
       </section>
       {snippets.length === 0 && <div className="empty-state">
-        <h2>No snippets yet.</h2>
-        <p>{user ? 'Be the first to share one.' : 'Create an account to share the first one.'}</p>
+        <h2>{search || language || sort === 'top' ? 'No matching snippets.' : 'No snippets yet.'}</h2>
+        <p>{search || language || sort === 'top' ? 'Try changing your search or filters.' : user ? 'Be the first to share one.' : 'Create an account to share the first one.'}</p>
         <Link className="button" to={user ? "/create" : "/register"}>{user ? "Share a snippet" : "Join the community"}</Link>
       </div>}
-      {snippets.length > 0 && visiblePosts.length === 0 && <div className="empty-state"><h2>No snippets in this language yet.</h2><p>Try another filter.</p></div>}
       {voteError && <p className="notice error" role="alert">{voteError}</p>}
       <div className="post-list">
-        {visiblePosts.map((post) => <PostCard key={post.id} post={post} myVote={myVotes[post.id]} onVote={handleVote} />)}
+        {snippets.map((post) => <PostCard key={post.id} post={post} myVote={myVotes[post.id]} onVote={handleVote} />)}
       </div>
     </div>
   );

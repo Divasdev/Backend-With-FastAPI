@@ -59,7 +59,10 @@ h1, h2, p { margin-top: 0; }
 .feed-toolbar { display: flex; justify-content: space-between; align-items: end; padding: 31px 0 16px; }
 .feed-toolbar h2 { margin: 0 0 4px; font: 700 25px 'Playfair Display', Georgia, serif; letter-spacing: -.6px; }
 .feed-toolbar span { color: #85877e; font-size: 13px; }
+.feed-filters { display: flex; align-items: end; gap: 12px; }
 .filter-control { display: flex; align-items: center; gap: 9px; color: #6c6e65; font-size: 13px; }
+.search-control { display: grid; gap: 5px; color: #6c6e65; font-size: 13px; }
+.search-control input { width: 200px; margin: 0; padding: 8px 10px; font-size: 13px; }
 
 /* ── Form Controls ───────────────────────────────────────── */
 select, input, textarea { width: 100%; color: #262820; background: #fffefa; border: 1px solid #d9d8cf; border-radius: 5px; outline: none; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; }
@@ -179,6 +182,9 @@ pre::-webkit-scrollbar-thumb:hover { background: #5a605a; }
   .hero h1 { font-size: 41px; }
   .hero-button { margin: 0; }
   .feed-toolbar { align-items: start; gap: 16px; flex-direction: column; }
+  .feed-filters { width: 100%; align-items: end; flex-wrap: wrap; }
+  .search-control { flex: 1 0 100%; }
+  .search-control input { width: 100%; }
   .filter-control { align-items: flex-start; flex-direction: column; gap: 5px; }
   .post-card { grid-template-columns: 42px 1fr; padding: 17px 14px 17px 10px; }
   .post-card h2 { font-size: 20px; }

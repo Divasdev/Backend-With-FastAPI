@@ -8,7 +8,7 @@ Tick a box when it is done: change `[ ]` to `[x]`.
 - [x] 2. Profile page. One page that shows a user and all their snippets.
 - [x] 3. Search, filter and sort on the server and feed. Support `?q=`, `?language=` and `?sort=new|top` on `GET /api/snippets/` and provide matching feed controls.
 - [x] 4. Pagination. Return 10 snippets by default with a total count, and load additional results with a "Load more" button.
-- [ ] 5. Votes on the detail page. They only show on the feed right now.
+- [x] 5. Votes on the detail page, with the user's current vote and updated score.
 
 ## Make it solid
 
@@ -32,4 +32,4 @@ Comments, follows, email or password reset, WebSockets, Redis.
 
 ## Done so far
 
-Register and login with JWT; profile photo upload; snippet create/read/edit/delete with ownership checks; voting; author details on snippet cards; user profile pages with their snippets; server-backed feed search, language filtering, newest/top sorting, and pagination; settings from `.env`; React frontend connected.
+Register and login with JWT; profile photo upload; snippet create/read/edit/delete with ownership checks; voting on feed cards and detail pages; author details on snippet cards; user profile pages with their snippets; server-backed feed search, language filtering, newest/top sorting, and pagination; settings from `.env`; React frontend connected.

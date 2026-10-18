@@ -163,6 +163,8 @@ pre { margin: 0; overflow: auto; }
 .detail-vote { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 25px 0; color: #757970; font-size: 14px; }
 .detail-vote button { padding: 6px 9px; border: 1px solid #d5d9d1; border-radius: 4px; color: #4d675e; background: #fffefa; font-size: 12px; font-weight: 600; transition: border-color .15s ease, background .15s ease; }
 .detail-vote button:hover { border-color: #8caaa0; background: #f2f8f5; }
+.detail-vote button.active { border-color: #8caaa0; color: #355e55; background: #e5f0eb; }
+.detail-vote button:disabled { cursor: default; opacity: .62; }
 .detail-vote strong { color: #454a41; font: 500 13px 'DM Mono', monospace; }
 
 /* ── Custom Scrollbars ───────────────────────────────────── */

@@ -16,6 +16,9 @@ export default function PostPage() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [myVote, setMyVote] = useState(null);
+  const [voting, setVoting] = useState(false);
+  const [voteError, setVoteError] = useState('');
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -51,6 +54,45 @@ export default function PostPage() {
         setLoading(false);
       });
   }, [id]);
+
+  useEffect(() => {
+    let active = true;
+    setMyVote(null);
+    if (!user) return () => { active = false; };
+
+    apiFetch('/users/me/votes')
+      .then((res) => res.json())
+      .then((votes) => {
+        if (!active) return;
+        const vote = votes.find((item) => item.snip_id === Number(id));
+        setMyVote(vote?.value ?? null);
+      })
+      .catch((err) => {
+        if (active) setVoteError(err.message);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [id, user]);
+
+  async function handleVote(value) {
+    if (!user || voting || !post) return;
+    const remove = myVote === value;
+    setVoting(true);
+    setVoteError('');
+    try {
+      const updated = await (await apiFetch(`/api/snippets/${id}/vote`, remove
+        ? { method: 'DELETE' }
+        : { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ value }) })).json();
+      setPost(updated);
+      setMyVote(remove ? null : value);
+    } catch (err) {
+      setVoteError(err.message);
+    } finally {
+      setVoting(false);
+    }
+  }
 
   if (loading) return <p className="page-loader" role="status">Loading snippet...</p>;
 
@@ -102,6 +144,14 @@ export default function PostPage() {
           <code>{post.code}</code>
         </pre>
       </div>
+
+      <section className="detail-vote" aria-label="Vote on this snippet" aria-busy={voting}>
+        <button type="button" className={myVote === 1 ? 'active' : ''} onClick={() => handleVote(1)} disabled={!user || voting} aria-label="Upvote" aria-pressed={myVote === 1}>▲ Upvote</button>
+        <strong>{post.vote_count}</strong>
+        <button type="button" className={myVote === -1 ? 'active' : ''} onClick={() => handleVote(-1)} disabled={!user || voting} aria-label="Downvote" aria-pressed={myVote === -1}>▼ Downvote</button>
+        {!user && <span><Link to="/login">Log in</Link> to vote</span>}
+      </section>
+      {voteError && <p className="notice error" role="alert">{voteError}</p>}
 
       {user?.id === post.owner_id && <div className="detail-actions">
         {confirmDelete ? <section className="delete-confirmation" aria-labelledby="delete-heading" aria-busy={deleting}>

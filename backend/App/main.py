@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi_pagination import add_pagination
 from sqlmodel import Session, select
 from starlette.middleware.cors import CORSMiddleware
 
@@ -14,7 +13,7 @@ from .routers import posts
 
 app = FastAPI()
 
-add_pagination(app)
+
 
 app.mount(
     "/uploads",

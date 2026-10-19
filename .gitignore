@@ -54,3 +54,4 @@ venv.bak/
 
 # Uploaded images (saved by the app while it runs)
 uploads/
+database.db

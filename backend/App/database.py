@@ -4,8 +4,14 @@ from sqlmodel import Session,SQLModel,create_engine
 
 from .config import settings
 
+url=settings.database_url
+connect_args={"check_same_thread":False} if url.startswith("sqlite") else{}
 
-engine=create_engine(settings.database_url,connect_args={"check_same_thread":False})
+engine=create_engine(
+   url,
+   connect_args=connect_args,
+   pool_pre_ping=True,
+)
 
 
    

@@ -1,38 +1,26 @@
-from contextlib import asynccontextmanager
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi_pagination import add_pagination
-
-
-from sqlmodel import Session,select
+from sqlmodel import Session, select
 from starlette.middleware.cors import CORSMiddleware
 
 from .auth import get_current_user, router as auth_router
 from .config import settings
-from .database import create_db_and_tables, get_session
-from .models import User, UserRead,Vote,VoteRead
+from .database import get_session
+from .models import User, UserRead, Vote, VoteRead
 from .routers import posts
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Runs once when the server starts.
-    create_db_and_tables()
-    yield
 
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 add_pagination(app)
+
 app.mount(
     "/uploads",
     StaticFiles(directory=str(settings.upload_dir)),
     name="uploads",
-    
 )
-
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -42,45 +30,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(posts.router)
-
 app.include_router(auth_router)
 
 
-@app.get(
-    "/users/me",
-    response_model=UserRead,
-)
-def read_me(
-    current_user: Annotated[
-        User,
-        Depends(get_current_user)
-    ],
-):
+@app.get("/users/me", response_model=UserRead)
+def read_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
 
 @app.get("/users/me/votes", response_model=list[VoteRead])
 def read_votes(
-     current_user: Annotated[
-        User,
-        Depends(get_current_user)
-    ],
-     session: Session = Depends(get_session),
- ):
-    
-    my_votes=session.exec(select(Vote).where(Vote.user_id==current_user.id)).all() 
-    
-    return my_votes
-@app.get('/users/{user_id}',response_model=UserRead)
-def get_user(
-    user_id:int,
-    
-    session:Session=Depends(get_session),
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Session = Depends(get_session),
 ):
-    user=session.get(User,user_id)
-    
+    return session.exec(select(Vote).where(Vote.user_id == current_user.id)).all()
+
+
+@app.get("/users/{user_id}", response_model=UserRead)
+def get_user(user_id: int, session: Session = Depends(get_session)):
+    user = session.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    return user 
+    return user

@@ -55,7 +55,7 @@ For deployment, either configure the web server to proxy these same paths or set
 `VITE_API_URL` to the backend origin when building the frontend. A separate origin
 must be included in the backend CORS allowlist. Vite's proxy only runs in development.
 
-- Register: `POST /auth/register` with JSON `{ email, password }`. Creates the account, then displays a confirmation on the login page; it does not return a token.
+- Register: `POST /auth/register` with multipart form data (`email`, `password`, optional `profile_image` file). Creates the account, then displays a confirmation on the login page; it does not return a token.
 - Login: `POST /auth/login` with URL-encoded `username` (the email) and `password`. Saves `access_token`, then fetches `GET /users/me` to display the account.
 - List/detail: `GET /api/snippets/` and `GET /api/snippets/{id}`.
 - Create: `POST /api/snippets/` with JSON `{ title, language, code, description }`.

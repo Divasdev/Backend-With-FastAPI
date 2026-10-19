@@ -41,3 +41,5 @@ watchfiles==1.3.0
 websockets==17.2
 psycopg[binary]==3.2.10
 alembic==1.17.0
+httpx==0.28.1
+pytest==9.1.1

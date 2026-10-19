@@ -12,9 +12,9 @@ Tick a box when it is done: change `[ ]` to `[x]`.
 
 ## Make it solid
 
-- [ ] 6. Tests with pytest. About 10 to 15: register, login, create needs a token, can't edit someone else's snippet, voting twice doesn't double count.
-- [ ] 7. PostgreSQL. Install Postgres and the driver, change `DATABASE_URL`, fix `check_same_thread` in `database.py` (it is SQLite-only).
-- [ ] 8. Alembic migrations. Replace `create_all` so table changes are tracked.
+- [x] 6. Tests with pytest. About 10 to 15: register, login, create needs a token, can't edit someone else's snippet, voting twice doesn't double count.
+- [x] 7. PostgreSQL. Install Postgres and the driver, change `DATABASE_URL`, fix `check_same_thread` in `database.py` (it is SQLite-only).
+- [x] 8. Alembic migrations. Replace `create_all` so table changes are tracked.
 
 ## Ship it
 

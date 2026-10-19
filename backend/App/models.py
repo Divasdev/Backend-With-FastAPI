@@ -11,6 +11,7 @@ class User(SQLModel,table=True):
     email:str|None=Field(unique=True,index=True)
     image_file:str|None=None
     hashed_password:str
+    bio:str|None=None
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
     @property
     def profile_image_url(self):
@@ -74,6 +75,7 @@ class SnipPublic(SnipBase):
     id: int
     owner_id:int
     created_at: datetime=Field(default_factory=lambda : datetime.now(timezone.utc))
+    updated_at: datetime | None = None
     vote_count: int = Field(default=0) 
     author:AuthorPublic|None=Field(default=None)
     

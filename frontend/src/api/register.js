@@ -1,4 +1,4 @@
-import { apiFetch } from './api';
+import { apiFetch, API_URL } from './api';
 
 export async function registerAccount({ email, password, profileImage }) {
   // BACKEND INTEGRATION POINT:
@@ -17,7 +17,7 @@ export async function registerAccount({ email, password, profileImage }) {
   }
 
 
-  const response=await fetch('/auth/register',{
+  const response=await fetch(`${API_URL}/auth/register`,{
     method:'POST',
     body:formData,
   });

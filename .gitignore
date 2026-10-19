@@ -12,6 +12,8 @@ dist
 dist-ssr
 build/
 *.local
+.vite/
+.pytest_cache/
 
 # Editor directories and files
 .vscode/

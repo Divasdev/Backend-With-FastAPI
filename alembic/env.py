@@ -6,7 +6,14 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-BACKEND_DIR = Path(__file__).resolve().parents[1] / "backend"
+parent_dir = Path(__file__).resolve().parents[1]
+if (parent_dir / "App").exists():
+    BACKEND_DIR = parent_dir
+elif (parent_dir / "backend" / "App").exists():
+    BACKEND_DIR = parent_dir / "backend"
+else:
+    BACKEND_DIR = Path(__file__).resolve().parent
+
 sys.path.insert(0, str(BACKEND_DIR))
 
 from App.config import settings  # noqa: E402

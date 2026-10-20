@@ -104,7 +104,6 @@ export default function FeedPage() {
   if (error) {
     return (
       <div className="empty-state">
-        <h1 style={{ color: '#dc2626', fontSize: '2.5rem', fontWeight: 'bold', margin: '0 0 12px 0' }}>FUCK YOU RENDER</h1>
         <h2>Could not load snippets.</h2>
         <p role="alert">{error}</p>
         <button type="button" className="button" onClick={() => window.location.reload()}>Try again</button>
@@ -114,9 +113,6 @@ export default function FeedPage() {
 
   return (
     <div className="feed-page">
-      <div style={{ background: '#fee2e2', border: '2px solid #ef4444', color: '#991b1b', padding: '14px 20px', borderRadius: '8px', marginBottom: '20px', fontWeight: '800', fontSize: '1.5rem', textAlign: 'center', letterSpacing: '1px' }}>
-        🔥 FUCK YOU RENDER 🔥
-      </div>
       <section className="hero">
         <div>
           <p className="eyebrow">{user ? `Welcome, ${user.email.split('@')[0]}` : 'The developer’s little library'}</p>
